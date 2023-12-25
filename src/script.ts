@@ -11,22 +11,8 @@ const initCanvas = (): void => {
 };
 
 const setShader = (): void => {
-    // const vs: string = `
-    //     attribute vec3 position;
-    //
-    //     void main() {
-    //         gl_Position = vec4(position, 1.0);
-    //     }
-    // `;
-    //
-    // const fs: string = `
-    //     void main() {
-    //         gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-    //     }
-    // `;
     const vs: string = readFileSync('./src/shader/vertex.glsl', 'utf-8');
     const fs: string = readFileSync('./src/shader/fragment.glsl', 'utf-8');
-    console.log(vs);
 
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     const gl: WebGLRenderingContext = c.getContext('webgl') as WebGLRenderingContext;
