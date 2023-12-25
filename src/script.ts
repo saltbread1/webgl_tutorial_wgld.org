@@ -1,4 +1,4 @@
-window.onload = () : void => {
+const initCanvas : {() : void} = () : void => {
     const c : HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
     c.width = 512;
     c.height = 512;
@@ -7,3 +7,5 @@ window.onload = () : void => {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 };
+
+window.addEventListener("DOMContentLoaded", initCanvas);
