@@ -25,19 +25,33 @@ const setShader = (): void => {
     const attLocation: number = gl.getAttribLocation(program, 'position');
     const attStride: number = 3;
 
+    const uniLocation: WebGLUniformLocation = gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation;
+
     const vertexPosition: number[] = [
-        0.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0,
+        -0.5,  0.5,  0.0,
+        -0.5, -0.5,  0.0,
+         0.5, -0.5,  0.0,
+         0.5,  0.5,  0.0,
+    ];
+
+    const index: number[] = [
+        0, 1, 2,
+        2, 3, 0,
     ];
 
     const vbo: WebGLBuffer = createVBO(gl, vertexPosition);
+    const ibo: WebGLBuffer = createIBO(gl, index);
+
     gl.enableVertexAttribArray(attLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.vertexAttribPointer(attLocation, attStride, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.uniform2f(uniLocation, c.width, c.height);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     gl.flush();
 };
 
@@ -76,6 +90,15 @@ const createVBO = (gl: WebGLRenderingContext, data: number[]): WebGLBuffer => {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     return vbo;
+};
+
+const createIBO = (gl: WebGLRenderingContext, data: number[]): WebGLBuffer => {
+    const ibo: WebGLBuffer = gl.createBuffer() as WebGLBuffer;
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(data), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    return ibo;
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);
