@@ -1,37 +1,42 @@
+import { readFileSync } from 'fs';
+
 const initCanvas = (): void => {
-    const c: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
+    const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     c.width = 512;
     c.height = 512;
 
-    const gl: WebGLRenderingContext = c.getContext("webgl") as WebGLRenderingContext;
+    const gl: WebGLRenderingContext = c.getContext('webgl') as WebGLRenderingContext;
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 };
 
 const setShader = (): void => {
-    const vs: string = `
-        attribute vec3 position;
-        
-        void main() {
-            gl_Position = vec4(position, 1.0);
-        }
-    `;
+    // const vs: string = `
+    //     attribute vec3 position;
+    //
+    //     void main() {
+    //         gl_Position = vec4(position, 1.0);
+    //     }
+    // `;
+    //
+    // const fs: string = `
+    //     void main() {
+    //         gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+    //     }
+    // `;
+    const vs: string = readFileSync('./src/shader/vertex.glsl', 'utf-8');
+    const fs: string = readFileSync('./src/shader/fragment.glsl', 'utf-8');
+    console.log(vs);
 
-    const fs: string = `
-        void main() {
-            gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-        }
-    `;
-
-    const c: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
-    const gl: WebGLRenderingContext = c.getContext("webgl") as WebGLRenderingContext;
+    const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
+    const gl: WebGLRenderingContext = c.getContext('webgl') as WebGLRenderingContext;
 
     const vShader: WebGLShader = createShader(gl, gl.VERTEX_SHADER, vs) as WebGLShader;
     const fShader: WebGLShader = createShader(gl, gl.FRAGMENT_SHADER, fs) as WebGLShader;
 
     const program: WebGLProgram = createProgram(gl, vShader, fShader) as WebGLProgram;
 
-    const attLocation: number = gl.getAttribLocation(program, "position");
+    const attLocation: number = gl.getAttribLocation(program, 'position');
     const attStride: number = 3;
 
     const vertexPosition: number[] = [
@@ -57,8 +62,7 @@ const createShader = (gl: WebGLRenderingContext, type: number, s: string): WebGL
 
     if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         return shader;
-    }
-    else {
+    } else {
         alert(gl.getShaderInfoLog(shader));
         return null;
     }
@@ -73,8 +77,7 @@ const createProgram = (gl: WebGLRenderingContext, vs: WebGLShader, fs: WebGLShad
     if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
         gl.useProgram(program);
         return program;
-    }
-    else {
+    } else {
         alert(gl.getProgramInfoLog(program));
         return null;
     }
@@ -89,5 +92,5 @@ const createVBO = (gl: WebGLRenderingContext, data: number[]): WebGLBuffer => {
     return vbo;
 };
 
-window.addEventListener("DOMContentLoaded", initCanvas);
-window.addEventListener("DOMContentLoaded", setShader);
+window.addEventListener('DOMContentLoaded', initCanvas);
+window.addEventListener('DOMContentLoaded', setShader);
