@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "traceResolution": false,
+    "module": "esnext",
+    "target": "es5",
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "strict": true,
+    "resolveJsonModule": true,
+  },
+  "include": [
+    "./src/**/*",
+  ],
+}
