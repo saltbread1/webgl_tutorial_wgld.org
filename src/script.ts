@@ -15,6 +15,13 @@ const initCanvas = (): void => {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // enable culling
+    // gl.enable(gl.CULL_FACE);
+
+    // enable depth test
+    // gl.enable(gl.DEPTH_TEST);
+    // gl.depthFunc(gl.LEQUAL);
 };
 
 const setShader = (): void => {
@@ -58,8 +65,8 @@ const setShader = (): void => {
     ];
 
     const index: number[] = [
-        0, 1, 2,
-        2, 3, 0,
+        0, 1, 2, // ccw
+        0, 3, 2, // cw
     ];
 
     const vboMap: Map<string, WebGLBuffer> = new Map<string, WebGLBuffer>();
