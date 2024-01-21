@@ -45,13 +45,14 @@ const setShader = (): void => {
         -1.0,  1.0,  0.0,
         -1.0, -1.0,  0.0,
          1.0, -1.0,  0.0,
-         //1.0,  1.0,  0.0,
+         1.0,  1.0,  0.0,
     ];
 
     const vertexColor: number[] = [
         1.0, 0.0, 0.0, 1.0,
         0.0, 1.0, 0.0, 1.0,
         0.0, 0.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
     ];
 
     const index: number[] = [
@@ -77,10 +78,10 @@ const setShader = (): void => {
         const time: number = (new Date().getTime() - initTime) * 0.001;
         gl.uniform1f(uniLocations.get('time') as WebGLUniformLocation, time);
 
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-        // gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        // gl.drawArrays(gl.TRIANGLES, 0, 3);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.flush();
 
         setTimeout(render, 1000 / fps);
