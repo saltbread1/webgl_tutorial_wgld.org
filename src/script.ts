@@ -1,4 +1,10 @@
 import { readFileSync } from 'fs';
+import * as glMat from 'gl-matrix';
+
+type Attribute = {
+    attLocation: number;
+    attStride: number;
+};
 
 const initCanvas = (): void => {
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -7,7 +13,8 @@ const initCanvas = (): void => {
 
     const gl: WebGLRenderingContext = c.getContext('webgl') as WebGLRenderingContext;
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clearDepth(1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 };
 
 const setShader = (): void => {
@@ -25,18 +32,26 @@ const setShader = (): void => {
 
     const program: WebGLProgram = createProgram(gl, vShader, fShader) as WebGLProgram;
 
-    const attLocation: number = gl.getAttribLocation(program, 'position');
-    const attStride: number = 3;
+    const attributes: Map<string, Attribute> = new Map<string, Attribute>();
+    attributes.set('position', { attLocation: gl.getAttribLocation(program, 'position'), attStride: 3 });
+    attributes.set('color', { attLocation: gl.getAttribLocation(program, 'color'), attStride: 4 });
 
-    const uniLocations: WebGLUniformLocation[] = [];
-    uniLocations.push(gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation);
-    uniLocations.push(gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
+    const uniLocations: Map<string, WebGLUniformLocation> = new Map<string, WebGLUniformLocation>();
+    uniLocations.set('mvpMatrix', gl.getUniformLocation(program, 'mvpMatrix') as WebGLUniformLocation);
+    uniLocations.set('resolution', gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation);
+    uniLocations.set('time', gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
 
     const vertexPosition: number[] = [
-        -0.5,  0.5,  0.0,
-        -0.5, -0.5,  0.0,
-         0.5, -0.5,  0.0,
-         0.5,  0.5,  0.0,
+        -1.0,  1.0,  0.0,
+        -1.0, -1.0,  0.0,
+         1.0, -1.0,  0.0,
+         //1.0,  1.0,  0.0,
+    ];
+
+    const vertexColor: number[] = [
+        1.0, 0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
     ];
 
     const index: number[] = [
@@ -44,23 +59,28 @@ const setShader = (): void => {
         2, 3, 0,
     ];
 
-    const vbo: WebGLBuffer = createVBO(gl, vertexPosition);
+    const vboMap: Map<string, WebGLBuffer> = new Map<string, WebGLBuffer>();
+    vboMap.set('position', createVBO(gl, vertexPosition));
+    vboMap.set('color', createVBO(gl, vertexColor));
     const ibo: WebGLBuffer = createIBO(gl, index);
 
-    setAttribute(gl, vbo, attLocation, attStride);
+    setAttribute(gl, vboMap.get('position') as WebGLBuffer, attributes.get('position') as Attribute);
+    setAttribute(gl, vboMap.get('color') as WebGLBuffer, attributes.get('color') as Attribute);
 
-    gl.uniform2f(uniLocations[0], c.width * 0.5, c.height * 0.5);
+    gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, calcMvpMatrix());
+    gl.uniform2f(uniLocations.get('resolution') as WebGLUniformLocation, c.width, c.height);
 
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         const time: number = (new Date().getTime() - initTime) * 0.001;
-        gl.uniform1f(uniLocations[1], time);
+        gl.uniform1f(uniLocations.get('time') as WebGLUniformLocation, time);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-        gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        // gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
         gl.flush();
 
         setTimeout(render, 1000 / fps);
@@ -115,11 +135,30 @@ const createIBO = (gl: WebGLRenderingContext, data: number[]): WebGLBuffer => {
     return ibo;
 };
 
-const setAttribute = (gl: WebGLRenderingContext, vbo: WebGLBuffer, attLocation: number, attStride: number): void => {
-    gl.enableVertexAttribArray(attLocation);
+const setAttribute = (gl: WebGLRenderingContext, vbo: WebGLBuffer, attribute: Attribute): void => {
+    gl.enableVertexAttribArray(attribute.attLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.vertexAttribPointer(attLocation, attStride, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(attribute.attLocation, attribute.attStride, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
+};
+
+const calcMvpMatrix = (): glMat.mat4 => {
+    const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
+
+    const mMatrix: glMat.mat4 = glMat.mat4.create();
+    const vMatrix: glMat.mat4 = glMat.mat4.create();
+    const pMatrix: glMat.mat4 = glMat.mat4.create();
+    const mvpMatrix: glMat.mat4 = glMat.mat4.create();
+
+    glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 0.0]);
+    glMat.mat4.lookAt(vMatrix, [0.0, 0.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    glMat.mat4.perspective(pMatrix, 90, c.width / c.height, 0.1, 100);
+
+    glMat.mat4.multiply(mvpMatrix, mMatrix, mvpMatrix);
+    glMat.mat4.multiply(mvpMatrix, vMatrix, mvpMatrix);
+    glMat.mat4.multiply(mvpMatrix, pMatrix, mvpMatrix);
+
+    return mvpMatrix;
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);
