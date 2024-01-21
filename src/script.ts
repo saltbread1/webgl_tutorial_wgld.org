@@ -41,6 +41,8 @@ const setShader = (): void => {
     uniLocations.set('resolution', gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation);
     uniLocations.set('time', gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
 
+    gl.uniform2f(uniLocations.get('resolution') as WebGLUniformLocation, c.width, c.height);
+
     const vertexPosition: number[] = [
         -1.0,  1.0,  0.0,
         -1.0, -1.0,  0.0,
@@ -68,19 +70,47 @@ const setShader = (): void => {
     setAttribute(gl, vboMap.get('position') as WebGLBuffer, attributes.get('position') as Attribute);
     setAttribute(gl, vboMap.get('color') as WebGLBuffer, attributes.get('color') as Attribute);
 
-    gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, calcMvpMatrix());
-    gl.uniform2f(uniLocations.get('resolution') as WebGLUniformLocation, c.width, c.height);
+    // define matrix
+    const mMatrix: glMat.mat4 = glMat.mat4.create();
+    const vMatrix: glMat.mat4 = glMat.mat4.create();
+    const pMatrix: glMat.mat4 = glMat.mat4.create();
+    const tmpMatrix: glMat.mat4 = glMat.mat4.create();
+    const mvpMatrix: glMat.mat4 = glMat.mat4.create();
+
+    // calculate view x projection matrix
+    glMat.mat4.lookAt(vMatrix, [0.0, 0.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    glMat.mat4.perspective(pMatrix, 90, c.width / c.height, 0.1, 100);
+    glMat.mat4.multiply(tmpMatrix, vMatrix, tmpMatrix);
+    glMat.mat4.multiply(tmpMatrix, pMatrix, tmpMatrix);
 
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
+        // time count
         const time: number = (new Date().getTime() - initTime) * 0.001;
         gl.uniform1f(uniLocations.get('time') as WebGLUniformLocation, time);
 
-        // gl.drawArrays(gl.TRIANGLES, 0, 3);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+
+        // model 1: rotate on z axis
+        // MVP matrix
+        glMat.mat4.fromTranslation(mMatrix, [-2.0, 0.0, 0.0]);
+        glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 3);
+        glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
+        // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+
+        // model 2: rotate on y axis
+        // MVP matrix
+        glMat.mat4.fromTranslation(mMatrix, [2.0, 0.0, 0.0]);
+        glMat.mat4.rotateY(mMatrix, mMatrix, time * Math.PI / 3);
+        glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
+        // draw the model to the buffer
+        gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.flush();
 
@@ -141,25 +171,6 @@ const setAttribute = (gl: WebGLRenderingContext, vbo: WebGLBuffer, attribute: At
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.vertexAttribPointer(attribute.attLocation, attribute.attStride, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-};
-
-const calcMvpMatrix = (): glMat.mat4 => {
-    const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
-
-    const mMatrix: glMat.mat4 = glMat.mat4.create();
-    const vMatrix: glMat.mat4 = glMat.mat4.create();
-    const pMatrix: glMat.mat4 = glMat.mat4.create();
-    const mvpMatrix: glMat.mat4 = glMat.mat4.create();
-
-    glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 0.0]);
-    glMat.mat4.lookAt(vMatrix, [0.0, 0.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
-    glMat.mat4.perspective(pMatrix, 90, c.width / c.height, 0.1, 100);
-
-    glMat.mat4.multiply(mvpMatrix, mMatrix, mvpMatrix);
-    glMat.mat4.multiply(mvpMatrix, vMatrix, mvpMatrix);
-    glMat.mat4.multiply(mvpMatrix, pMatrix, mvpMatrix);
-
-    return mvpMatrix;
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);
