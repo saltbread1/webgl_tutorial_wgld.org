@@ -67,12 +67,13 @@ const setShader = (): void => {
 
     // get uniforms
     const uniLocations: Map<string, WebGLUniformLocation> = new Map<string, WebGLUniformLocation>();
+    uniLocations.set('mMatrix', gl.getUniformLocation(program, 'mMatrix') as WebGLUniformLocation);
     uniLocations.set('mvpMatrix', gl.getUniformLocation(program, 'mvpMatrix') as WebGLUniformLocation);
     uniLocations.set('invMatrix', gl.getUniformLocation(program, 'invMatrix') as WebGLUniformLocation);
     uniLocations.set('lightDirection', gl.getUniformLocation(program, 'lightDirection') as WebGLUniformLocation);
+    uniLocations.set('lightPosition', gl.getUniformLocation(program, 'lightPosition') as WebGLUniformLocation);
     uniLocations.set('eyeDirection', gl.getUniformLocation(program, 'eyeDirection') as WebGLUniformLocation);
     uniLocations.set('ambientColor', gl.getUniformLocation(program, 'ambientColor') as WebGLUniformLocation);
-    uniLocations.set('resolution', gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation);
     uniLocations.set('time', gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
 
     // define matrix
@@ -91,11 +92,11 @@ const setShader = (): void => {
 
     // direction light
     const lightDirection: number[] = [-1.0, 1.0, 1.0];
+    const lightPosition: number[] = [0.0, 0.0, 0.0];
     const eyeDirection: number[] = [0.0, 0.0, 1.0];
     const ambientColor: number[] = [0.1, 0.1, 0.1, 0.1];
 
     // set uniforms
-    gl.uniform2f(uniLocations.get('resolution') as WebGLUniformLocation, c.width, c.height);
     gl.uniform3fv(uniLocations.get('lightDirection') as WebGLUniformLocation, lightDirection);
     gl.uniform3fv(uniLocations.get('eyeDirection') as WebGLUniformLocation, eyeDirection);
     gl.uniform4fv(uniLocations.get('ambientColor') as WebGLUniformLocation, ambientColor);
@@ -108,14 +109,21 @@ const setShader = (): void => {
         const time: number = (new Date().getTime() - initTime) * 0.001;
         gl.uniform1f(uniLocations.get('time') as WebGLUniformLocation, time);
 
+        // position of the point light
+        lightPosition[0] = Math.cos(time * Math.PI / 8) * 2.0;
+        lightPosition[1] = Math.sin(time * Math.PI / 8) * 2.0;
+        lightPosition[2] = 0;
+        gl.uniform3fv(uniLocations.get('lightPosition') as WebGLUniformLocation, lightPosition);
+
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
 
         // model 1: rotate on z axis
         // MVP matrix
         glMat.mat4.fromTranslation(mMatrix, [-2.0, 0.0, 0.0]);
-        glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 3);
+        glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mMatrix') as WebGLUniformLocation, false, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocations.get('invMatrix') as WebGLUniformLocation, false, invMatrix);
         // draw the model to the buffer
@@ -124,9 +132,10 @@ const setShader = (): void => {
         // model 2: rotate on y axis
         // MVP matrix
         glMat.mat4.fromTranslation(mMatrix, [2.0, 0.0, 0.0]);
-        glMat.mat4.rotateY(mMatrix, mMatrix, time * Math.PI / 3);
+        glMat.mat4.rotateY(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mMatrix') as WebGLUniformLocation, false, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocations.get('invMatrix') as WebGLUniformLocation, false, invMatrix);
         // draw the model to the buffer
