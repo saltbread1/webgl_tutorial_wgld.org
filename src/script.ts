@@ -70,6 +70,7 @@ const setShader = (): void => {
     uniLocations.set('mvpMatrix', gl.getUniformLocation(program, 'mvpMatrix') as WebGLUniformLocation);
     uniLocations.set('invMatrix', gl.getUniformLocation(program, 'invMatrix') as WebGLUniformLocation);
     uniLocations.set('lightDirection', gl.getUniformLocation(program, 'lightDirection') as WebGLUniformLocation);
+    uniLocations.set('ambientColor', gl.getUniformLocation(program, 'ambientColor') as WebGLUniformLocation);
     uniLocations.set('resolution', gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation);
     uniLocations.set('time', gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
 
@@ -89,10 +90,12 @@ const setShader = (): void => {
 
     // direction light
     const lightDirection: number[] = [-1.0, 1.0, 1.0];
+    const ambientColor: number[] = [0.1, 0.1, 0.1, 0.1];
 
     // set uniforms
     gl.uniform2f(uniLocations.get('resolution') as WebGLUniformLocation, c.width, c.height);
     gl.uniform3fv(uniLocations.get('lightDirection') as WebGLUniformLocation, lightDirection);
+    gl.uniform4fv(uniLocations.get('ambientColor') as WebGLUniformLocation, ambientColor);
 
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
