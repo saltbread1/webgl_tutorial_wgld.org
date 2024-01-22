@@ -8,6 +8,7 @@ type Attribute = {
 
 type Vertices = {
     pos: number[];
+    nor: number[];
     col: number[];
     idx: number[];
 };
@@ -45,26 +46,32 @@ const setShader = (): void => {
 
     const program: WebGLProgram = createProgram(gl, vShader, fShader) as WebGLProgram;
 
+    // get attributes
     const attributes: Map<string, Attribute> = new Map<string, Attribute>();
     attributes.set('position', { attLocation: gl.getAttribLocation(program, 'position'), attStride: 3 });
+    attributes.set('normal', { attLocation: gl.getAttribLocation(program, 'normal'), attStride: 3 });
     attributes.set('color', { attLocation: gl.getAttribLocation(program, 'color'), attStride: 4 });
 
-    const uniLocations: Map<string, WebGLUniformLocation> = new Map<string, WebGLUniformLocation>();
-    uniLocations.set('mvpMatrix', gl.getUniformLocation(program, 'mvpMatrix') as WebGLUniformLocation);
-    uniLocations.set('resolution', gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation);
-    uniLocations.set('time', gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
-
-    gl.uniform2f(uniLocations.get('resolution') as WebGLUniformLocation, c.width, c.height);
-
+    // set VBO
     const vertices: Vertices = torus(100, 100, 0.2, 1);
-
     const vboMap: Map<string, WebGLBuffer> = new Map<string, WebGLBuffer>();
     vboMap.set('position', createVBO(gl, vertices.pos));
+    vboMap.set('normal', createVBO(gl, vertices.nor));
     vboMap.set('color', createVBO(gl, vertices.col));
     const ibo: WebGLBuffer = createIBO(gl, vertices.idx);
 
+    // set attributes
     setAttribute(gl, vboMap.get('position') as WebGLBuffer, attributes.get('position') as Attribute);
+    setAttribute(gl, vboMap.get('normal') as WebGLBuffer, attributes.get('normal') as Attribute);
     setAttribute(gl, vboMap.get('color') as WebGLBuffer, attributes.get('color') as Attribute);
+
+    // get uniforms
+    const uniLocations: Map<string, WebGLUniformLocation> = new Map<string, WebGLUniformLocation>();
+    uniLocations.set('mvpMatrix', gl.getUniformLocation(program, 'mvpMatrix') as WebGLUniformLocation);
+    uniLocations.set('invMatrix', gl.getUniformLocation(program, 'invMatrix') as WebGLUniformLocation);
+    uniLocations.set('lightDirection', gl.getUniformLocation(program, 'lightDirection') as WebGLUniformLocation);
+    uniLocations.set('resolution', gl.getUniformLocation(program, 'resolution') as WebGLUniformLocation);
+    uniLocations.set('time', gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
 
     // define matrix
     const mMatrix: glMat.mat4 = glMat.mat4.create();
@@ -72,12 +79,20 @@ const setShader = (): void => {
     const pMatrix: glMat.mat4 = glMat.mat4.create();
     const tmpMatrix: glMat.mat4 = glMat.mat4.create();
     const mvpMatrix: glMat.mat4 = glMat.mat4.create();
+    const invMatrix: glMat.mat4 = glMat.mat4.create();
 
     // calculate view x projection matrix
     glMat.mat4.lookAt(vMatrix, [0.0, 1.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
     glMat.mat4.perspective(pMatrix, 90, c.width / c.height, 0.1, 100);
     glMat.mat4.multiply(tmpMatrix, vMatrix, tmpMatrix);
     glMat.mat4.multiply(tmpMatrix, pMatrix, tmpMatrix);
+
+    // direction light
+    const lightDirection: number[] = [-1.0, 1.0, 1.0];
+
+    // set uniforms
+    gl.uniform2f(uniLocations.get('resolution') as WebGLUniformLocation, c.width, c.height);
+    gl.uniform3fv(uniLocations.get('lightDirection') as WebGLUniformLocation, lightDirection);
 
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -94,7 +109,9 @@ const setShader = (): void => {
         glMat.mat4.fromTranslation(mMatrix, [-2.0, 0.0, 0.0]);
         glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 3);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
+        glMat.mat4.invert(invMatrix, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('invMatrix') as WebGLUniformLocation, false, invMatrix);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, vertices.idx.length, gl.UNSIGNED_SHORT, 0);
 
@@ -103,7 +120,9 @@ const setShader = (): void => {
         glMat.mat4.fromTranslation(mMatrix, [2.0, 0.0, 0.0]);
         glMat.mat4.rotateY(mMatrix, mMatrix, time * Math.PI / 3);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
+        glMat.mat4.invert(invMatrix, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('invMatrix') as WebGLUniformLocation, false, invMatrix);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, vertices.idx.length, gl.UNSIGNED_SHORT, 0);
 
@@ -170,7 +189,7 @@ const setAttribute = (gl: WebGLRenderingContext, vbo: WebGLBuffer, attribute: At
 };
 
 const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices => {
-    const vertices: Vertices = {pos: [], col: [], idx: []};
+    const vertices: Vertices = {pos: [], nor: [], col: [], idx: []};
     for (let lon: number = 0; lon <= lRes; lon++) {
         const t: number = Math.PI * 2 / lRes * lon;
         for (let mer: number = 0; mer <= mRes; mer++) {
@@ -180,6 +199,12 @@ const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices
             const y: number = lRad * Math.sin(t) + sRad * Math.cos(p) * Math.sin(t);
             const z: number = sRad * Math.sin(p);
             vertices.pos.push(x, y, z);
+
+            // normal
+            const nx: number = Math.cos(p) * Math.cos(t);
+            const ny: number = Math.cos(p) * Math.sin(t);
+            const nz: number = Math.sin(p);
+            vertices.nor.push(nx, ny, nz);
 
             // color
             const rgb: number[] = hsv2rgb(lon/lRes, 1, 1, 1);
@@ -205,18 +230,18 @@ const hsv2rgb = (h: number, s: number, v: number, a: number): number[] => {
     return [r, g, b, a];
 };
 
-const rgb2hsb = (r: number, g: number, b: number, a: number): number[] => {
-    const max: number = Math.max(Math.max(r, g), b);
-    const min: number = Math.min(Math.min(r, g), b);
-    const v: number = max;
-    const s: number = (max-min)/max;
-    let h: number = step(b, min)*((g-r)/(max-min)+1.)
-    + step(r, min)*((b-g)/(max-min)+3.)
-    + step(g, min)*((r-b)/(max-min)+5.);
-    h /= 6;
-    h += step(h, 0);
-    return [h, s, v, a];
-};
+// const rgb2hsb = (r: number, g: number, b: number, a: number): number[] => {
+//     const max: number = Math.max(Math.max(r, g), b);
+//     const min: number = Math.min(Math.min(r, g), b);
+//     const v: number = max;
+//     const s: number = (max-min)/max;
+//     let h: number = step(b, min)*((g-r)/(max-min)+1.)
+//     + step(r, min)*((b-g)/(max-min)+3.)
+//     + step(g, min)*((r-b)/(max-min)+5.);
+//     h /= 6;
+//     h += step(h, 0);
+//     return [h, s, v, a];
+// };
 
 const fract = (x: number): number => {
     return x - Math.floor(x);
@@ -226,9 +251,9 @@ const clamp01 = (x: number): number => {
     return Math.max(Math.min(x, 1), 0);
 };
 
-const step = (a: number, x: number): number => {
-    return x < a ? 0 : 1;
-};
+// const step = (a: number, x: number): number => {
+//     return x < a ? 0 : 1;
+// };
 
 window.addEventListener('DOMContentLoaded', initCanvas);
 window.addEventListener('DOMContentLoaded', setShader);
