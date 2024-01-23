@@ -3,6 +3,7 @@ precision mediump float;
 #endif
 
 uniform sampler2D texture0;
+uniform sampler2D texture1;
 uniform float time;
 uniform mat4 invMatrix;
 uniform vec3 lightDirection;
@@ -22,7 +23,8 @@ void main() {
     vec3 reflectDirection = reflect(-invLight, vNormal);
     float specular = pow(clamp(dot(reflectDirection, invEye), 0.0, 1.0), 16.0);
     vec4 light = vColor * vec4(vec3(diffse + specular), 1.0);
-    vec4 texColor = texture2D(texture0, vTextureCoord);
+    vec4 texColor0 = texture2D(texture0, vTextureCoord);
+    vec4 texColor1 = texture2D(texture1, vTextureCoord);
     //gl_FragColor = light + ambientColor;
-    gl_FragColor = vColor * texColor;
+    gl_FragColor = vColor * texColor0 * texColor1;
 }

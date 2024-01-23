@@ -98,6 +98,7 @@ const setShader = async (): Promise<void> => {
     uniLocations.set('eyeDirection', gl.getUniformLocation(program, 'eyeDirection')!);
     uniLocations.set('ambientColor', gl.getUniformLocation(program, 'ambientColor')!);
     uniLocations.set('texture0', gl.getUniformLocation(program, 'texture0')!);
+    uniLocations.set('texture1', gl.getUniformLocation(program, 'texture1')!);
     uniLocations.set('time', gl.getUniformLocation(program, 'time')!);
 
     // define matrix
@@ -120,16 +121,24 @@ const setShader = async (): Promise<void> => {
     const eyeDirection: number[] = [0.0, 0.0, 1.0];
     const ambientColor: number[] = [0.1, 0.1, 0.1, 0.1];
 
-    // texture
-    const texture0: WebGLTexture = await createTexture(gl, 'saltbread.png');
+    // Textures must be created first or does not work.
+    const texture0: WebGLTexture = await createTexture(gl, 'img/saltbread.png');
+    const texture1: WebGLTexture = await createTexture(gl, 'img/texture1.png');
+
+    // texture 0: active and bind
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture0);
+
+    // texture 1: active and bind
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, texture1);
 
     // set uniforms
     gl.uniform3fv(uniLocations.get('lightDirection')!, lightDirection);
     gl.uniform3fv(uniLocations.get('eyeDirection')!, eyeDirection);
     gl.uniform4fv(uniLocations.get('ambientColor')!, ambientColor);
     gl.uniform1i(uniLocations.get('texture0')!, 0);
+    gl.uniform1i(uniLocations.get('texture1')!, 1);
 
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
