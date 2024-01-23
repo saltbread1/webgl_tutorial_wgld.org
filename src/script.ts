@@ -1,8 +1,6 @@
 import { readFileSync } from 'fs';
 import * as glMat from 'gl-matrix';
 
-let texture0: WebGLTexture | null = null;
-
 type Attribute = {
     attLocation: number;
     attStride: number;
@@ -13,7 +11,7 @@ const initCanvas = (): void => {
     c.width = 512;
     c.height = 512;
 
-    const gl: WebGLRenderingContext = c.getContext('webgl') as WebGLRenderingContext;
+    const gl: WebGLRenderingContext = c.getContext('webgl')!;
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -26,7 +24,7 @@ const initCanvas = (): void => {
     // gl.depthFunc(gl.LEQUAL);
 };
 
-const setShader = (): void => {
+const setShader = async (): Promise<void> => {
     const fps: number = 30;
     const initTime: number = new Date().getTime();
 
@@ -34,12 +32,12 @@ const setShader = (): void => {
     const fs: string = readFileSync('src/shader/fragment.glsl', 'utf-8');
 
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
-    const gl: WebGLRenderingContext = c.getContext('webgl') as WebGLRenderingContext;
+    const gl: WebGLRenderingContext = c.getContext('webgl')!;
 
-    const vShader: WebGLShader = createShader(gl, gl.VERTEX_SHADER, vs) as WebGLShader;
-    const fShader: WebGLShader = createShader(gl, gl.FRAGMENT_SHADER, fs) as WebGLShader;
+    const vShader: WebGLShader = createShader(gl, gl.VERTEX_SHADER, vs)!;
+    const fShader: WebGLShader = createShader(gl, gl.FRAGMENT_SHADER, fs)!;
 
-    const program: WebGLProgram = createProgram(gl, vShader, fShader) as WebGLProgram;
+    const program: WebGLProgram = createProgram(gl, vShader, fShader)!;
 
     // get attributes
     const attributes: Map<string, Attribute> = new Map<string, Attribute>();
@@ -85,22 +83,22 @@ const setShader = (): void => {
     const ibo: WebGLBuffer = createIBO(gl, index);
 
     // set attributes
-    setAttribute(gl, vboMap.get('position') as WebGLBuffer, attributes.get('position') as Attribute);
-    setAttribute(gl, vboMap.get('normal') as WebGLBuffer, attributes.get('normal') as Attribute);
-    setAttribute(gl, vboMap.get('color') as WebGLBuffer, attributes.get('color') as Attribute);
-    setAttribute(gl, vboMap.get('textureCoord') as WebGLBuffer, attributes.get('textureCoord') as Attribute);
+    setAttribute(gl, vboMap.get('position')!, attributes.get('position')!);
+    setAttribute(gl, vboMap.get('normal')!, attributes.get('normal')!);
+    setAttribute(gl, vboMap.get('color')!, attributes.get('color')!);
+    setAttribute(gl, vboMap.get('textureCoord')!, attributes.get('textureCoord')!);
 
     // get uniforms
     const uniLocations: Map<string, WebGLUniformLocation> = new Map<string, WebGLUniformLocation>();
-    uniLocations.set('mMatrix', gl.getUniformLocation(program, 'mMatrix') as WebGLUniformLocation);
-    uniLocations.set('mvpMatrix', gl.getUniformLocation(program, 'mvpMatrix') as WebGLUniformLocation);
-    uniLocations.set('invMatrix', gl.getUniformLocation(program, 'invMatrix') as WebGLUniformLocation);
-    uniLocations.set('lightDirection', gl.getUniformLocation(program, 'lightDirection') as WebGLUniformLocation);
-    uniLocations.set('lightPosition', gl.getUniformLocation(program, 'lightPosition') as WebGLUniformLocation);
-    uniLocations.set('eyeDirection', gl.getUniformLocation(program, 'eyeDirection') as WebGLUniformLocation);
-    uniLocations.set('ambientColor', gl.getUniformLocation(program, 'ambientColor') as WebGLUniformLocation);
-    uniLocations.set('texture0', gl.getUniformLocation(program, 'texture0') as WebGLUniformLocation);
-    uniLocations.set('time', gl.getUniformLocation(program, 'time') as WebGLUniformLocation);
+    uniLocations.set('mMatrix', gl.getUniformLocation(program, 'mMatrix')!);
+    uniLocations.set('mvpMatrix', gl.getUniformLocation(program, 'mvpMatrix')!);
+    uniLocations.set('invMatrix', gl.getUniformLocation(program, 'invMatrix')!);
+    uniLocations.set('lightDirection', gl.getUniformLocation(program, 'lightDirection')!);
+    uniLocations.set('lightPosition', gl.getUniformLocation(program, 'lightPosition')!);
+    uniLocations.set('eyeDirection', gl.getUniformLocation(program, 'eyeDirection')!);
+    uniLocations.set('ambientColor', gl.getUniformLocation(program, 'ambientColor')!);
+    uniLocations.set('texture0', gl.getUniformLocation(program, 'texture0')!);
+    uniLocations.set('time', gl.getUniformLocation(program, 'time')!);
 
     // define matrix
     const mMatrix: glMat.mat4 = glMat.mat4.create();
@@ -123,17 +121,15 @@ const setShader = (): void => {
     const ambientColor: number[] = [0.1, 0.1, 0.1, 0.1];
 
     // texture
-    createTexture(gl, 'saltbread.png');
-    // if (texture0 == null)
-    // {
-    //     alert('texture is null');
-    // }
+    const texture0: WebGLTexture = await createTexture(gl, 'saltbread.png');
     gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture0);
 
     // set uniforms
-    gl.uniform3fv(uniLocations.get('lightDirection') as WebGLUniformLocation, lightDirection);
-    gl.uniform3fv(uniLocations.get('eyeDirection') as WebGLUniformLocation, eyeDirection);
-    gl.uniform4fv(uniLocations.get('ambientColor') as WebGLUniformLocation, ambientColor);
+    gl.uniform3fv(uniLocations.get('lightDirection')!, lightDirection);
+    gl.uniform3fv(uniLocations.get('eyeDirection')!, eyeDirection);
+    gl.uniform4fv(uniLocations.get('ambientColor')!, ambientColor);
+    gl.uniform1i(uniLocations.get('texture0')!, 0);
 
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -141,18 +137,13 @@ const setShader = (): void => {
 
         // time count
         const time: number = (new Date().getTime() - initTime) * 0.001;
-        gl.uniform1f(uniLocations.get('time') as WebGLUniformLocation, time);
+        gl.uniform1f(uniLocations.get('time')!, time);
 
         // position of the point light
         lightPosition[0] = Math.cos(time * Math.PI / 8) * 2.0;
         lightPosition[1] = Math.sin(time * Math.PI / 8) * 2.0;
         lightPosition[2] = 0;
-        gl.uniform3fv(uniLocations.get('lightPosition') as WebGLUniformLocation, lightPosition);
-
-        // texture
-        gl.bindTexture(gl.TEXTURE_2D, texture0);
-        gl.uniform1i(uniLocations.get('texture0') as WebGLUniformLocation, 0);
-        //gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.uniform3fv(uniLocations.get('lightPosition')!, lightPosition);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
 
@@ -162,9 +153,9 @@ const setShader = (): void => {
         glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('mMatrix') as WebGLUniformLocation, false, mMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('invMatrix') as WebGLUniformLocation, false, invMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
@@ -174,23 +165,21 @@ const setShader = (): void => {
         glMat.mat4.rotateY(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('mMatrix') as WebGLUniformLocation, false, mMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix') as WebGLUniformLocation, false, mvpMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('invMatrix') as WebGLUniformLocation, false, invMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.flush();
-
-        setTimeout(render, 1000 / fps);
     };
 
-    render();
+    setInterval(render, 1000 / fps);
 };
 
 const createShader = (gl: WebGLRenderingContext, type: number, s: string): WebGLShader | null => {
-    const shader: WebGLShader = gl.createShader(type) as WebGLShader;
+    const shader: WebGLShader = gl.createShader(type)!;
     gl.shaderSource(shader, s);
     gl.compileShader(shader);
 
@@ -203,7 +192,7 @@ const createShader = (gl: WebGLRenderingContext, type: number, s: string): WebGL
 };
 
 const createProgram = (gl: WebGLRenderingContext, vs: WebGLShader, fs: WebGLShader): WebGLProgram | null => {
-    const program: WebGLProgram = gl.createProgram() as WebGLProgram;
+    const program: WebGLProgram = gl.createProgram()!;
     gl.attachShader(program, vs);
     gl.attachShader(program, fs);
     gl.linkProgram(program);
@@ -218,7 +207,7 @@ const createProgram = (gl: WebGLRenderingContext, vs: WebGLShader, fs: WebGLShad
 };
 
 const createVBO = (gl: WebGLRenderingContext, data: number[]): WebGLBuffer => {
-    const vbo: WebGLBuffer = gl.createBuffer() as WebGLBuffer;
+    const vbo: WebGLBuffer = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -227,7 +216,7 @@ const createVBO = (gl: WebGLRenderingContext, data: number[]): WebGLBuffer => {
 };
 
 const createIBO = (gl: WebGLRenderingContext, data: number[]): WebGLBuffer => {
-    const ibo: WebGLBuffer = gl.createBuffer() as WebGLBuffer;
+    const ibo: WebGLBuffer = gl.createBuffer()!;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(data), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
@@ -242,19 +231,20 @@ const setAttribute = (gl: WebGLRenderingContext, vbo: WebGLBuffer, attribute: At
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 };
 
-const createTexture = (gl: WebGLRenderingContext, source: string): void => {
-    const img: HTMLImageElement = new Image();
+const createTexture = (gl: WebGLRenderingContext, source: string): Promise<WebGLTexture> =>
+    new Promise<WebGLTexture>((resolve: (value: WebGLTexture) => void): void => {
+        const img: HTMLImageElement = new Image();
 
-    img.onload = (): void => {
-        const tex: WebGLTexture = gl.createTexture() as WebGLTexture;
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        gl.generateMipmap(gl.TEXTURE_2D);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-        texture0 = tex;
-    };
-    img.src = source;
-};
+        img.onload = (): void => {
+            const texture: WebGLTexture = gl.createTexture()!;
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            resolve(texture);
+        };
+        img.src = source;
+    });
 
 window.addEventListener('DOMContentLoaded', initCanvas);
 window.addEventListener('DOMContentLoaded', setShader);
