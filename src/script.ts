@@ -185,13 +185,13 @@ const setShader = async (): Promise<void> => {
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
         // disable alpha blend
-        gl.disable(gl.BLEND);
+        gl.enable(gl.BLEND);
         // set uniforms
         gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
         gl.uniform1i(uniLocations.get('texture0')!, 2);
-        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, vertexAlpha);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
@@ -289,10 +289,10 @@ const createTexture = (gl: WebGLRenderingContext, source: string): Promise<WebGL
 const blend = (gl: WebGLRenderingContext, type: BlendType): void => {
     switch (type) {
         case BlendType.ALPHA:
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
             break;
         case BlendType.ADD:
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
             break;
         default:
             throw new Error('This blend type is illegal.');
