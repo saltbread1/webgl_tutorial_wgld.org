@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html lang='en' xmlns='http://www.w3.org/1999/html'>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset='UTF-8'>
+    <meta charset="UTF-8">
     <title>webgl_test</title>
 </head>
 <body>
-    <canvas id='canvas'></canvas>
-    <script type='text/javascript' src='./script.ts'></script>
+    <canvas id="canvas"></canvas>
+    <p>
+        <label for="transparency">transparency</label><input id="transparency" name="blend" type="radio" checked>
+        <label for="add">add</label><input id="add" name="blend" type="radio">
+    </p>
+    <p>
+        <label for="alpha_value">alpha</label><input id="alpha_value" type="range" min="0" max="1" step="any">
+    </p>
+    <script type="text/javascript" src="./script.ts"></script>
 </body>
 </html>

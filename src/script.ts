@@ -6,6 +6,11 @@ type Attribute = {
     attStride: number;
 };
 
+enum BlendType {
+    ALPHA,
+    ADD,
+}
+
 const initCanvas = (): void => {
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     c.width = 512;
@@ -20,8 +25,8 @@ const initCanvas = (): void => {
     // gl.enable(gl.CULL_FACE);
 
     // enable depth test
-    // gl.enable(gl.DEPTH_TEST);
-    // gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
 };
 
 const setShader = async (): Promise<void> => {
@@ -31,8 +36,11 @@ const setShader = async (): Promise<void> => {
     const vs: string = readFileSync('src/shader/vertex.glsl', 'utf-8');
     const fs: string = readFileSync('src/shader/fragment.glsl', 'utf-8');
 
-    const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
-    const gl: WebGLRenderingContext = c.getContext('webgl')!;
+    const elmCanvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
+    const elmTransparency: HTMLInputElement = document.getElementById('transparency') as HTMLInputElement;
+    const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
+    const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
+    const gl: WebGLRenderingContext = elmCanvas.getContext('webgl')!;
 
     const vShader: WebGLShader = createShader(gl, gl.VERTEX_SHADER, vs)!;
     const fShader: WebGLShader = createShader(gl, gl.FRAGMENT_SHADER, fs)!;
@@ -99,6 +107,7 @@ const setShader = async (): Promise<void> => {
     uniLocations.set('ambientColor', gl.getUniformLocation(program, 'ambientColor')!);
     uniLocations.set('texture0', gl.getUniformLocation(program, 'texture0')!);
     uniLocations.set('texture1', gl.getUniformLocation(program, 'texture1')!);
+    uniLocations.set('vertexAlpha', gl.getUniformLocation(program, 'vertexAlpha')!);
     uniLocations.set('time', gl.getUniformLocation(program, 'time')!);
 
     // define matrix
@@ -111,7 +120,7 @@ const setShader = async (): Promise<void> => {
 
     // calculate view x projection matrix
     glMat.mat4.lookAt(vMatrix, [0.0, 1.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
-    glMat.mat4.perspective(pMatrix, 90, c.width / c.height, 0.1, 100);
+    glMat.mat4.perspective(pMatrix, 90, elmCanvas.width / elmCanvas.height, 0.1, 100);
     glMat.mat4.multiply(tmpMatrix, vMatrix, tmpMatrix);
     glMat.mat4.multiply(tmpMatrix, pMatrix, tmpMatrix);
 
@@ -122,8 +131,9 @@ const setShader = async (): Promise<void> => {
     const ambientColor: number[] = [0.1, 0.1, 0.1, 0.1];
 
     // Textures must be created first or does not work.
-    const texture0: WebGLTexture = await createTexture(gl, 'img/saltbread.png');
+    const texture0: WebGLTexture = await createTexture(gl, 'img/texture0.png');
     const texture1: WebGLTexture = await createTexture(gl, 'img/texture1.png');
+    const texture2: WebGLTexture = await createTexture(gl, 'img/saltbread.png');
 
     // texture 0: active and bind
     gl.activeTexture(gl.TEXTURE0);
@@ -133,16 +143,24 @@ const setShader = async (): Promise<void> => {
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, texture1);
 
+    // texture 2: active and bind
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, texture2);
+
     // set uniforms
     gl.uniform3fv(uniLocations.get('lightDirection')!, lightDirection);
     gl.uniform3fv(uniLocations.get('eyeDirection')!, eyeDirection);
     gl.uniform4fv(uniLocations.get('ambientColor')!, ambientColor);
-    gl.uniform1i(uniLocations.get('texture0')!, 0);
+    //gl.uniform1i(uniLocations.get('texture0')!, 0);
     gl.uniform1i(uniLocations.get('texture1')!, 1);
+
+    // apply IBO
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
 
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clearDepth(1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // time count
         const time: number = (new Date().getTime() - initTime) * 0.001;
@@ -154,33 +172,46 @@ const setShader = async (): Promise<void> => {
         lightPosition[2] = 0;
         gl.uniform3fv(uniLocations.get('lightPosition')!, lightPosition);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        // blend
+        const blendType: BlendType = elmTransparency.checked ? BlendType.ALPHA : BlendType.ADD;
+        blend(gl, blendType);
+        // alpha value
+        const vertexAlpha: number = parseFloat(elmAlphaValue.value);
 
         // model 1: rotate on z axis
         // MVP matrix
-        glMat.mat4.fromTranslation(mMatrix, [-2.0, 0.0, 0.0]);
+        glMat.mat4.fromTranslation(mMatrix, [0.25, 0.25, 1.0]);
         glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
+        // disable alpha blend
+        gl.disable(gl.BLEND);
+        // set uniforms
         gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
+        gl.uniform1i(uniLocations.get('texture0')!, 2);
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
         // model 2: rotate on y axis
         // MVP matrix
-        glMat.mat4.fromTranslation(mMatrix, [2.0, 0.0, 0.0]);
+        glMat.mat4.fromTranslation(mMatrix, [-0.25, -0.25, 1.2]);
         glMat.mat4.rotateY(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
+        // enable alpha blend
+        gl.enable(gl.BLEND);
+        // set uniforms
         gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
+        gl.uniform1i(uniLocations.get('texture0')!, 0);
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, vertexAlpha);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.flush();
     };
 
@@ -254,6 +285,19 @@ const createTexture = (gl: WebGLRenderingContext, source: string): Promise<WebGL
         };
         img.src = source;
     });
+
+const blend = (gl: WebGLRenderingContext, type: BlendType): void => {
+    switch (type) {
+        case BlendType.ALPHA:
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            break;
+        case BlendType.ADD:
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            break;
+        default:
+            throw new Error('This blend type is illegal.');
+    }
+};
 
 window.addEventListener('DOMContentLoaded', initCanvas);
 window.addEventListener('DOMContentLoaded', setShader);
