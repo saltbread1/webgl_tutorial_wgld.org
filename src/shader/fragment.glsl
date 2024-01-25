@@ -13,7 +13,7 @@ varying vec3 vNormal;
 varying vec4 vColor;
 
 void main() {
-    vec3 lightVec = lightPosition - vPosition;
+    vec3 lightVec = lightDirection;//lightPosition - vPosition;
     vec3 invLight = normalize(invMatrix * vec4(lightVec, 0.0)).xyz;
     vec3 invEye = normalize(invMatrix * vec4(eyeDirection, 0.0)).xyz;
     float diffse = clamp(dot(vNormal, invLight), 0.0, 1.0);
