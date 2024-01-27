@@ -17,7 +17,7 @@ varying vec2 vTextureCoord;
 void main() {
     vPosition = (mMatrix * vec4(position, 1.0)).xyz;
     vNormal = normal;
-    vColor = color * vertexAlpha;
+    vColor = vec4(color.rbg, color.a * vertexAlpha);
     vTextureCoord = textureCoord;
     gl_Position = mvpMatrix * vec4(position, 1.0);
 }
