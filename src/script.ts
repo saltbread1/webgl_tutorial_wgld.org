@@ -22,6 +22,7 @@ const initCanvas = (): void => {
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     c.width = 512;
     c.height = 512;
+    c.addEventListener('mousemove', mouseMove);
 
     const gl: WebGLRenderingContext = c.getContext('webgl')!;
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -224,6 +225,9 @@ const setShader = async (): Promise<void> => {
 
         // model: sphere
         glMat.mat4.fromTranslation(mMatrix, [2.0, 0.0, 0.0]);
+        const qMatrix: glMat.mat4 = glMat.mat4.create();
+        glMat.mat4.fromQuat(qMatrix, quat);
+        glMat.mat4.multiply(mMatrix, mMatrix, qMatrix);
         glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
@@ -444,6 +448,21 @@ const fract = (x: number): number => {
 
 const clamp01 = (x: number): number => {
     return Math.max(Math.min(x, 1), 0);
+};
+
+const quat: glMat.quat = glMat.quat.create();
+
+const mouseMove = (e: MouseEvent): void => {
+    const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
+    const halfW: number = c.width / 2;
+    const halfH: number = c.height / 2;
+    const x: number = e.clientX - (c.clientLeft + halfW);
+    const y: number = -(e.clientY - (c.clientTop + halfH));
+    const rad: number = Math.PI * Math.sqrt((x*x+y*y)/(halfW*halfW+halfH*halfH));
+    const axis: glMat.vec3 = glMat.vec3.create();
+    glMat.vec3.normalize(axis, [x, y, 0]);
+    glMat.vec3.rotateZ(axis, axis, [0, 0, 0], Math.PI/2);
+    glMat.quat.setAxisAngle(quat, axis, rad);
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);
