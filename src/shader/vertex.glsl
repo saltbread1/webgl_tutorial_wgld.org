@@ -9,6 +9,7 @@ attribute vec2 textureCoord;
 uniform mat4 mvpMatrix;
 uniform mat4 mMatrix;
 uniform float vertexAlpha;
+uniform float pointSize;
 varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
@@ -20,4 +21,5 @@ void main() {
     vColor = vec4(color.rbg, color.a * vertexAlpha);
     vTextureCoord = textureCoord;
     gl_Position = mvpMatrix * vec4(position, 1.0);
+    gl_PointSize = pointSize;
 }

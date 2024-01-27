@@ -45,7 +45,7 @@ const setShader = async (): Promise<void> => {
 
     const elmCanvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     const elmTransparency: HTMLInputElement = document.getElementById('transparency') as HTMLInputElement;
-    const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
+    //const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
     const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
     const gl: WebGLRenderingContext = elmCanvas.getContext('webgl')!;
 
@@ -91,7 +91,7 @@ const setShader = async (): Promise<void> => {
         3, 2, 1,
     ];
     const torusVertices: Vertices = torus(100, 100, 0.2, 1);
-    const sphereVertices: Vertices = sphere(100, 100, 1);
+    const sphereVertices: Vertices = sphere(16, 16, 1);
     const vboMap: Map<string, WebGLBuffer> = new Map<string, WebGLBuffer>();
     vboMap.set('position', createVBO(gl, position));
     vboMap.set('normal', createVBO(gl, normal));
@@ -120,6 +120,7 @@ const setShader = async (): Promise<void> => {
     uniLocations.set('texture0', gl.getUniformLocation(program, 'texture0')!);
     uniLocations.set('texture1', gl.getUniformLocation(program, 'texture1')!);
     uniLocations.set('vertexAlpha', gl.getUniformLocation(program, 'vertexAlpha')!);
+    uniLocations.set('pointSize', gl.getUniformLocation(program, 'pointSize')!);
     uniLocations.set('time', gl.getUniformLocation(program, 'time')!);
 
     // define matrix
@@ -181,6 +182,9 @@ const setShader = async (): Promise<void> => {
         lightPosition[2] = 0;
         gl.uniform3fv(uniLocations.get('lightPosition')!, lightPosition);
 
+        // point size
+        gl.uniform1f(uniLocations.get('pointSize')!, 8);
+
         // blend
         const blendType: BlendType = elmTransparency.checked ? BlendType.ALPHA : BlendType.ADD;
         blend(gl, blendType);
@@ -231,7 +235,8 @@ const setShader = async (): Promise<void> => {
         gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
         gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
         // draw the model to the buffer
-        gl.drawElements(gl.TRIANGLES, sphereVertices.idx.length, gl.UNSIGNED_SHORT, 0);
+        //gl.drawElements(gl.TRIANGLES, sphereVertices.idx.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawArrays(gl.POINTS, 0, sphereVertices.pos.length / 3);
 
         // set texture attributes
         setAttribute(gl, vboMap.get('position')!, attributes.get('position')!);
