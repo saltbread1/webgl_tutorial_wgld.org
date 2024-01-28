@@ -10,6 +10,7 @@ uniform mat4 mvpMatrix;
 uniform mat4 mMatrix;
 uniform float vertexAlpha;
 uniform float pointSize;
+uniform float outlineSizeRatio;
 varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
@@ -20,6 +21,6 @@ void main() {
     vNormal = normal;
     vColor = vec4(color.rbg, color.a * vertexAlpha);
     vTextureCoord = textureCoord;
-    gl_Position = mvpMatrix * vec4(position, 1.0);
+    gl_Position = mvpMatrix * vec4(position + normal * outlineSizeRatio, 1.0);
     gl_PointSize = pointSize;
 }
