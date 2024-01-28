@@ -16,6 +16,7 @@ type Vertices = {
     pos: number[];
     nor: number[];
     col: number[];
+    tex: number[];
     idx: number[];
 };
 
@@ -25,7 +26,7 @@ const initCanvas = (): void => {
     c.height = 512;
     c.addEventListener('mousemove', mouseMove);
 
-    const gl: WebGLRenderingContext = c.getContext('webgl')!;
+    const gl: WebGLRenderingContext = c.getContext('webgl', {stencil: true})!;
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -46,13 +47,14 @@ const setShader = async (): Promise<void> => {
     const initTime: number = new Date().getTime();
 
     const vs: string = readFileSync('src/shader/vertex.glsl', 'utf-8');
-    const fs: string = readFileSync('src/shader/pointTexture.glsl', 'utf-8');
+    const fs: string = readFileSync('src/shader/fragment.glsl', 'utf-8');
 
     const elmCanvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     const elmTransparency: HTMLInputElement = document.getElementById('transparency') as HTMLInputElement;
     const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
     const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
     const elmPointSize: HTMLInputElement = document.getElementById("point_size") as HTMLInputElement;
+    const elmOutlineSizeRatio: HTMLInputElement = document.getElementById("outline_size") as HTMLInputElement;
     const gl: WebGLRenderingContext = elmCanvas.getContext('webgl')!;
 
     const vShader: WebGLShader = createShader(gl, gl.VERTEX_SHADER, vs)!;
@@ -97,7 +99,8 @@ const setShader = async (): Promise<void> => {
         3, 2, 1,
     ];
     const torusVertices: Vertices = torus(100, 100, 0.2, 1);
-    const sphereVertices: Vertices = sphere(16, 16, 1);
+    const sphereVertices: Vertices = sphere(100, 100, 1);
+
     const vboMap: Map<string, WebGLBuffer> = new Map<string, WebGLBuffer>();
     vboMap.set('position', createVBO(gl, position));
     vboMap.set('normal', createVBO(gl, normal));
@@ -106,9 +109,13 @@ const setShader = async (): Promise<void> => {
     vboMap.set('torusPosition', createVBO(gl, torusVertices.pos));
     vboMap.set('torusNormal', createVBO(gl, torusVertices.nor));
     vboMap.set('torusColor', createVBO(gl, torusVertices.col));
+    vboMap.set('torusTextureCoord', createVBO(gl, torusVertices.tex));
     vboMap.set('spherePosition', createVBO(gl, sphereVertices.pos));
     vboMap.set('sphereNormal', createVBO(gl, sphereVertices.nor));
     vboMap.set('sphereColor', createVBO(gl, sphereVertices.col));
+    vboMap.set('sphereTextureCoord', createVBO(gl, sphereVertices.tex));
+
+
     const iboMap: Map<string, WebGLBuffer> = new Map<string, WebGLBuffer>();
     iboMap.set('texture', createIBO(gl, index));
     iboMap.set('torus', createIBO(gl, torusVertices.idx));
@@ -127,7 +134,9 @@ const setShader = async (): Promise<void> => {
     uniLocations.set('texture1', gl.getUniformLocation(program, 'texture1')!);
     uniLocations.set('vertexAlpha', gl.getUniformLocation(program, 'vertexAlpha')!);
     uniLocations.set('pointSize', gl.getUniformLocation(program, 'pointSize')!);
-    uniLocations.set('time', gl.getUniformLocation(program, 'time')!);
+    uniLocations.set('outlineSizeRatio', gl.getUniformLocation(program, 'outlineSizeRatio')!);
+    uniLocations.set('isLight', gl.getUniformLocation(program, 'isLight')!);
+    uniLocations.set('isTexture', gl.getUniformLocation(program, 'isTexture')!);
 
     // define matrix
     const mMatrix: glMat.mat4 = glMat.mat4.create();
@@ -136,9 +145,10 @@ const setShader = async (): Promise<void> => {
     const tmpMatrix: glMat.mat4 = glMat.mat4.create();
     const mvpMatrix: glMat.mat4 = glMat.mat4.create();
     const invMatrix: glMat.mat4 = glMat.mat4.create();
+    const qMatrix: glMat.mat4 = glMat.mat4.create();
 
     // calculate view x projection matrix
-    glMat.mat4.lookAt(vMatrix, [0.0, 1.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    glMat.mat4.lookAt(vMatrix, [0.0, 0.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
     glMat.mat4.perspective(pMatrix, 90, elmCanvas.width / elmCanvas.height, 0.1, 100);
     glMat.mat4.multiply(tmpMatrix, vMatrix, tmpMatrix);
     glMat.mat4.multiply(tmpMatrix, pMatrix, tmpMatrix);
@@ -176,7 +186,8 @@ const setShader = async (): Promise<void> => {
     const render = (): void => {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clearDepth(1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.clearStencil(0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         // time count
         const time: number = (new Date().getTime() - initTime) * 0.001;
@@ -199,58 +210,117 @@ const setShader = async (): Promise<void> => {
         blend(gl, blendType);
         // alpha value
         const vertexAlpha: number = parseFloat(elmAlphaValue.value);
+        const outlineSizeRatio: number = parseFloat(elmOutlineSizeRatio.value);
 
-        /*
         // set torus attributes
         setAttribute(gl, vboMap.get('torusPosition')!, attributes.get('position')!);
         setAttribute(gl, vboMap.get('torusNormal')!, attributes.get('normal')!);
         setAttribute(gl, vboMap.get('torusColor')!, attributes.get('color')!);
+        setAttribute(gl, vboMap.get('torusTextureCoord')!, attributes.get('textureCoord')!);
 
         // apply torus IBO
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('torus')!);
 
-        // model: torus
-        glMat.mat4.fromTranslation(mMatrix, [-2.0, 0.0, 0.0]);
-        glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
-        glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
-        glMat.mat4.invert(invMatrix, mMatrix);
-        // disable alpha blend
-        gl.disable(gl.BLEND);
-        // set uniforms
-        gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
-        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
-        // draw the model to the buffer
-        gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
-        */
-
-        // set sphere attributes
-        setAttribute(gl, vboMap.get('spherePosition')!, attributes.get('position')!);
-        setAttribute(gl, vboMap.get('sphereNormal')!, attributes.get('normal')!);
-        setAttribute(gl, vboMap.get('sphereColor')!, attributes.get('color')!);
-
-        // apply sphere IBO
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('sphere')!);
-
-        // model: sphere
-        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 1.0]);
-        const qMatrix: glMat.mat4 = glMat.mat4.create();
+        // matrix for torus
+        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 0.0]);
         glMat.mat4.fromQuat(qMatrix, quat);
         glMat.mat4.multiply(mMatrix, mMatrix, qMatrix);
         glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
-        // enable alpha blend
-        gl.enable(gl.BLEND);
-        // set uniforms
+
+        // disable alpha blend
+        gl.disable(gl.BLEND);
+
+        // set uniforms for torus outline
         gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
-        gl.uniform1f(uniLocations.get('vertexAlpha')!, vertexAlpha);
-        // draw the model to the buffer
-        //gl.drawElements(gl.TRIANGLES, sphereVertices.idx.length, gl.UNSIGNED_SHORT, 0);
-        gl.drawArrays(gl.POINTS, 0, sphereVertices.pos.length / 3);
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
+        gl.uniform1f(uniLocations.get('outlineSizeRatio')!, outlineSizeRatio);
+        gl.uniform1i(uniLocations.get('isLight')!, 0);
+        gl.uniform1i(uniLocations.get('isTexture')!, 0);
+
+        gl.enable(gl.STENCIL_TEST);
+        gl.colorMask(false, false, false, false);
+        gl.depthMask(false);
+        gl.stencilFunc(gl.ALWAYS, 1, ~0);
+        gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
+
+        // draw the torus outline
+        gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
+
+
+        // set sphere attributes
+        setAttribute(gl, vboMap.get('spherePosition')!, attributes.get('position')!);
+        setAttribute(gl, vboMap.get('sphereNormal')!, attributes.get('normal')!);
+        setAttribute(gl, vboMap.get('sphereColor')!, attributes.get('color')!);
+        setAttribute(gl, vboMap.get('sphereTextureCoord')!, attributes.get('textureCoord')!);
+
+        // apply sphere IBO
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('sphere')!);
+
+        // matrix for sphere
+        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 2.0]);
+        glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
+        glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
+        glMat.mat4.invert(invMatrix, mMatrix);
+
+        // disable alpha blend
+        gl.disable(gl.BLEND);
+
+        // set uniforms for sphere
+        gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
+        gl.uniform1f(uniLocations.get('outlineSizeRatio')!, 0.0);
+        gl.uniform1i(uniLocations.get('isLight')!, 0);
+        gl.uniform1i(uniLocations.get('isTexture')!, 1);
+
+        gl.colorMask(true, true, true, true);
+        gl.depthMask(true);
+        gl.stencilFunc(gl.EQUAL, 0, ~0);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+
+        // draw the sphere background
+        gl.drawElements(gl.TRIANGLES, sphereVertices.idx.length, gl.UNSIGNED_SHORT, 0);
+        //gl.drawArrays(gl.POINTS, 0, sphereVertices.pos.length / 3);
+
+
+        // set torus attributes
+        setAttribute(gl, vboMap.get('torusPosition')!, attributes.get('position')!);
+        setAttribute(gl, vboMap.get('torusNormal')!, attributes.get('normal')!);
+        setAttribute(gl, vboMap.get('torusColor')!, attributes.get('color')!);
+        setAttribute(gl, vboMap.get('torusTextureCoord')!, attributes.get('textureCoord')!);
+
+        // apply torus IBO
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('torus')!);
+
+        // matrix for torus
+        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 0.0]);
+        glMat.mat4.fromQuat(qMatrix, quat);
+        glMat.mat4.multiply(mMatrix, mMatrix, qMatrix);
+        glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
+        glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
+        glMat.mat4.invert(invMatrix, mMatrix);
+
+        // disable alpha blend
+        gl.disable(gl.BLEND);
+
+        // set uniforms for torus inline
+        gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
+        gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
+        gl.uniform1f(uniLocations.get('outlineSizeRatio')!, 0.0);
+        gl.uniform1i(uniLocations.get('isLight')!, 1);
+        gl.uniform1i(uniLocations.get('isTexture')!, 0);
+
+        gl.disable(gl.STENCIL_TEST);
+
+        // draw the torus inline
+        gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
 
         /*
         // set texture attributes
@@ -385,7 +455,7 @@ const blend = (gl: WebGLRenderingContext, type: BlendType): void => {
 };
 
 const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices => {
-    const vertices: Vertices = {pos: [], nor: [], col: [], idx: []};
+    const vertices: Vertices = {pos: [], nor: [], col: [], tex: [], idx: []};
     for (let lon: number = 0; lon <= lRes; lon++) {
         const t: number = Math.PI * 2 / lRes * lon;
         for (let mer: number = 0; mer <= mRes; mer++) {
@@ -405,6 +475,9 @@ const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices
             // color
             const rgb: number[] = hsv2rgb(lon/lRes, 1, 1, 1);
             vertices.col.push(rgb[0], rgb[1], rgb[2], rgb[3]);
+
+            // texCoord
+            vertices.tex.push(mer/mRes, lon/lRes);
         }
     }
 
@@ -420,8 +493,8 @@ const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices
 };
 
 const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
-    const vertices: Vertices = {pos: [], nor: [], col: [], idx: []};
-    for (let lon: number = 1; lon < lonRes; lon++) {
+    const vertices: Vertices = {pos: [], nor: [], col: [], tex: [], idx: []};
+    for (let lon: number = 0; lon <= lonRes; lon++) {
         const theta: number = Math.PI * lon / lonRes;
         for (let lat: number = 0; lat <= latRes; lat++) {
             const phi: number = 2 * Math.PI * lat / latRes;
@@ -433,10 +506,12 @@ const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
 
             const rgb: number[] = hsv2rgb(lat/latRes, 1, 1, 1);
             vertices.col.push(rgb[0], rgb[1], rgb[2], rgb[3]);
+
+            vertices.tex.push(lat/latRes, lon/lonRes);
         }
     }
 
-    for (let lon: number = 1; lon < lonRes-1; lon++) {
+    for (let lon: number = 0; lon < lonRes; lon++) {
         for (let lat: number = 0; lat < latRes; lat++) {
             const i: number = lat + (latRes+1) * lon;
             vertices.idx.push(i, i+1, i+latRes+1);
