@@ -9,6 +9,7 @@ type Attribute = {
 enum BlendType {
     ALPHA,
     ADD,
+    INVALIABLE,
 }
 
 type Vertices = {
@@ -35,6 +36,9 @@ const initCanvas = (): void => {
     // enable depth test
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
+
+    const pointSizeRange: number[] = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
+    console.log(`pointSizeRange: ${pointSizeRange[0]} - ${pointSizeRange[1]}`);
 };
 
 const setShader = async (): Promise<void> => {
@@ -42,12 +46,13 @@ const setShader = async (): Promise<void> => {
     const initTime: number = new Date().getTime();
 
     const vs: string = readFileSync('src/shader/vertex.glsl', 'utf-8');
-    const fs: string = readFileSync('src/shader/fragment.glsl', 'utf-8');
+    const fs: string = readFileSync('src/shader/pointTexture.glsl', 'utf-8');
 
     const elmCanvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     const elmTransparency: HTMLInputElement = document.getElementById('transparency') as HTMLInputElement;
-    //const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
+    const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
     const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
+    const elmPointSize: HTMLInputElement = document.getElementById("point_size") as HTMLInputElement;
     const gl: WebGLRenderingContext = elmCanvas.getContext('webgl')!;
 
     const vShader: WebGLShader = createShader(gl, gl.VERTEX_SHADER, vs)!;
@@ -145,7 +150,7 @@ const setShader = async (): Promise<void> => {
     const ambientColor: number[] = [0.1, 0.1, 0.1, 0.1];
 
     // Textures must be created first or does not work.
-    const texture0: WebGLTexture = await createTexture(gl, 'img/texture0.png');
+    const texture0: WebGLTexture = await createTexture(gl, 'img/saltbread.png');
     const texture1: WebGLTexture = await createTexture(gl, 'img/texture1.png');
     const texture2: WebGLTexture = await createTexture(gl, 'img/saltbread.png');
 
@@ -175,7 +180,7 @@ const setShader = async (): Promise<void> => {
 
         // time count
         const time: number = (new Date().getTime() - initTime) * 0.001;
-        gl.uniform1f(uniLocations.get('time')!, time);
+        // gl.uniform1f(uniLocations.get('time')!, time);
 
         // position of the point light
         lightPosition[0] = Math.cos(time * Math.PI / 8) * 2.0;
@@ -184,14 +189,18 @@ const setShader = async (): Promise<void> => {
         gl.uniform3fv(uniLocations.get('lightPosition')!, lightPosition);
 
         // point size
-        gl.uniform1f(uniLocations.get('pointSize')!, 8);
+        const pointSize: number = parseFloat(elmPointSize.value);
+        gl.uniform1f(uniLocations.get('pointSize')!, pointSize);
 
         // blend
-        const blendType: BlendType = elmTransparency.checked ? BlendType.ALPHA : BlendType.ADD;
+        let blendType: BlendType = BlendType.INVALIABLE;
+        if (elmTransparency.checked) { blendType = BlendType.ALPHA; }
+        if (elmAdd.checked) { blendType = BlendType.ADD; }
         blend(gl, blendType);
         // alpha value
         const vertexAlpha: number = parseFloat(elmAlphaValue.value);
 
+        /*
         // set torus attributes
         setAttribute(gl, vboMap.get('torusPosition')!, attributes.get('position')!);
         setAttribute(gl, vboMap.get('torusNormal')!, attributes.get('normal')!);
@@ -214,6 +223,7 @@ const setShader = async (): Promise<void> => {
         gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
+        */
 
         // set sphere attributes
         setAttribute(gl, vboMap.get('spherePosition')!, attributes.get('position')!);
@@ -224,24 +234,25 @@ const setShader = async (): Promise<void> => {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('sphere')!);
 
         // model: sphere
-        glMat.mat4.fromTranslation(mMatrix, [2.0, 0.0, 0.0]);
+        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 1.0]);
         const qMatrix: glMat.mat4 = glMat.mat4.create();
         glMat.mat4.fromQuat(qMatrix, quat);
         glMat.mat4.multiply(mMatrix, mMatrix, qMatrix);
         glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
-        // disable alpha blend
-        gl.disable(gl.BLEND);
+        // enable alpha blend
+        gl.enable(gl.BLEND);
         // set uniforms
         gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
         gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
-        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, vertexAlpha);
         // draw the model to the buffer
         //gl.drawElements(gl.TRIANGLES, sphereVertices.idx.length, gl.UNSIGNED_SHORT, 0);
         gl.drawArrays(gl.POINTS, 0, sphereVertices.pos.length / 3);
 
+        /*
         // set texture attributes
         setAttribute(gl, vboMap.get('position')!, attributes.get('position')!);
         setAttribute(gl, vboMap.get('normal')!, attributes.get('normal')!);
@@ -284,6 +295,7 @@ const setShader = async (): Promise<void> => {
         gl.uniform1f(uniLocations.get('vertexAlpha')!, vertexAlpha);
         // draw the model to the buffer
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+        */
 
         gl.flush();
     };
@@ -409,7 +421,7 @@ const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices
 
 const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
     const vertices: Vertices = {pos: [], nor: [], col: [], idx: []};
-    for (let lon: number = 0; lon <= lonRes; lon++) {
+    for (let lon: number = 1; lon < lonRes; lon++) {
         const theta: number = Math.PI * lon / lonRes;
         for (let lat: number = 0; lat <= latRes; lat++) {
             const phi: number = 2 * Math.PI * lat / latRes;
@@ -424,7 +436,7 @@ const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
         }
     }
 
-    for (let lon: number = 0; lon < lonRes; lon++) {
+    for (let lon: number = 1; lon < lonRes-1; lon++) {
         for (let lat: number = 0; lat < latRes; lat++) {
             const i: number = lat + (latRes+1) * lon;
             vertices.idx.push(i, i+1, i+latRes+1);
