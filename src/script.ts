@@ -23,7 +23,6 @@ type Vertices = {
 type Buffers = {
     f: WebGLFramebuffer | null;
     d: WebGLRenderbuffer | null;
-    s: WebGLRenderbuffer | null;
     t: WebGLTexture | null;
 };
 
@@ -78,8 +77,8 @@ const setShader = async (): Promise<void> => {
 
     // set VBO
     const squareVertices: Vertices = square(1);
-    const torusVertices: Vertices = torus(100, 100, 0.2, 1);
-    const sphereVertices: Vertices = sphere(100, 100, 1);
+    const torusVertices: Vertices = torus(100, 100, 0.2, 1.5);
+    const sphereVertices: Vertices = sphere(100, 100, 2.25);
 
     const vboMap: Map<string, WebGLBuffer> = new Map<string, WebGLBuffer>();
     vboMap.set('squarePosition', createVBO(gl, squareVertices.pos));
@@ -128,7 +127,7 @@ const setShader = async (): Promise<void> => {
     const qMatrix: glMat.mat4 = glMat.mat4.create();
 
     // calculate view x projection matrix
-    glMat.mat4.lookAt(vMatrix, [0.0, 0.0, 3.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+    glMat.mat4.lookAt(vMatrix, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
     glMat.mat4.perspective(pMatrix, 90, elmCanvas.width / elmCanvas.height, 0.1, 100);
     glMat.mat4.multiply(tmpMatrix, vMatrix, tmpMatrix);
     glMat.mat4.multiply(tmpMatrix, pMatrix, tmpMatrix);
@@ -199,44 +198,6 @@ const setShader = async (): Promise<void> => {
         // bind texture
         gl.bindTexture(gl.TEXTURE_2D, texture0);
 
-        /*
-
-        // set torus attributes
-        setAttribute(gl, vboMap.get('torusPosition')!, attributes.get('position')!);
-        setAttribute(gl, vboMap.get('torusNormal')!, attributes.get('normal')!);
-        setAttribute(gl, vboMap.get('torusColor')!, attributes.get('color')!);
-        setAttribute(gl, vboMap.get('torusTextureCoord')!, attributes.get('textureCoord')!);
-
-        // apply torus IBO
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('torus')!);
-
-        // matrix for torus
-        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 0.0]);
-        glMat.mat4.fromQuat(qMatrix, quat);
-        glMat.mat4.multiply(mMatrix, mMatrix, qMatrix);
-        glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
-        glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
-        glMat.mat4.invert(invMatrix, mMatrix);
-
-        // set uniforms for torus outline
-        gl.uniformMatrix4fv(uniLocations.get('mMatrix')!, false, mMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('mvpMatrix')!, false, mvpMatrix);
-        gl.uniformMatrix4fv(uniLocations.get('invMatrix')!, false, invMatrix);
-        gl.uniform1f(uniLocations.get('outlineSizeRatio')!, outlineSizeRatio);
-        gl.uniform1i(uniLocations.get('isLight')!, 0);
-        gl.uniform1i(uniLocations.get('isTexture')!, 0);
-
-        gl.enable(gl.STENCIL_TEST);
-        gl.colorMask(false, false, false, false);
-        gl.depthMask(false);
-        gl.stencilFunc(gl.ALWAYS, 1, ~0);
-        gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-
-        // draw the torus outline
-        gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
-        */
-
-
         // set sphere attributes
         setAttribute(gl, vboMap.get('spherePosition')!, attributes.get('position')!);
         setAttribute(gl, vboMap.get('sphereNormal')!, attributes.get('normal')!);
@@ -247,7 +208,9 @@ const setShader = async (): Promise<void> => {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('sphere')!);
 
         // matrix for sphere
-        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 2.0]);
+        glMat.mat4.fromTranslation(mMatrix, [0.0, 0.0, 0.0]);
+        glMat.mat4.fromQuat(qMatrix, quat);
+        glMat.mat4.multiply(mMatrix, mMatrix, qMatrix);
         glMat.mat4.rotateZ(mMatrix, mMatrix, time * Math.PI / 4);
         glMat.mat4.multiply(mvpMatrix, tmpMatrix, mMatrix);
         glMat.mat4.invert(invMatrix, mMatrix);
@@ -260,16 +223,11 @@ const setShader = async (): Promise<void> => {
         gl.uniform1i(uniLocations.get('isLight')!, 0);
         gl.uniform1i(uniLocations.get('isTexture')!, 1);
 
-        // gl.colorMask(true, true, true, true);
-        // gl.depthMask(true);
-        // gl.stencilFunc(gl.EQUAL, 0, ~0);
-        // gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-
         // draw the sphere background
         gl.drawElements(gl.TRIANGLES, sphereVertices.idx.length, gl.UNSIGNED_SHORT, 0);
         //gl.drawArrays(gl.POINTS, 0, sphereVertices.pos.length / 3);
 
-/*
+
         // set torus attributes
         setAttribute(gl, vboMap.get('torusPosition')!, attributes.get('position')!);
         setAttribute(gl, vboMap.get('torusNormal')!, attributes.get('normal')!);
@@ -295,11 +253,9 @@ const setShader = async (): Promise<void> => {
         gl.uniform1i(uniLocations.get('isLight')!, 1);
         gl.uniform1i(uniLocations.get('isTexture')!, 0);
 
-        gl.disable(gl.STENCIL_TEST);
-
         // draw the torus inline
         gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
-        */
+
 
         // unbind framebuffer: flush automatically
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -588,11 +544,6 @@ const createFrameBuffer = (gl: WebGLRenderingContext, width: number, height: num
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
 
-    const stencilRenderBuffer: WebGLRenderbuffer | null = gl.createRenderbuffer();
-    // gl.bindRenderbuffer(gl.RENDERBUFFER, stencilRenderBuffer);
-    // gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
-    // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, stencilRenderBuffer);
-
     const fTexture: WebGLTexture | null = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, fTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -606,7 +557,7 @@ const createFrameBuffer = (gl: WebGLRenderingContext, width: number, height: num
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    return {f: frameBuffer, d: depthRenderBuffer, s: stencilRenderBuffer, t: fTexture};
+    return {f: frameBuffer, d: depthRenderBuffer, t: fTexture};
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);
