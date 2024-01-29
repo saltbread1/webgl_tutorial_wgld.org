@@ -25,7 +25,7 @@ void main() {
     float specular = pow(clamp(dot(reflectDirection, invEye), 0.0, 1.0), 16.0);
     vec4 texColor0 = texture2D(texture0, vTextureCoord);
     vec4 texColor1 = texture2D(texture1, vTextureCoord);
-    vec4 color = isTexture ? texColor0 : vColor;
+    vec4 color = isTexture ? vColor * texColor0 : vColor;
     vec4 light = color * vec4(vec3(diffse + specular), 1.0) + ambientColor;
     gl_FragColor = isLight ? light : color;
 }
