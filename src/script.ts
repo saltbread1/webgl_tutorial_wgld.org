@@ -118,12 +118,6 @@ const setShader = async (): Promise<void> => {
     uniLocations.set('isLight', gl.getUniformLocation(program, 'isLight')!);
     uniLocations.set('isTexture', gl.getUniformLocation(program, 'isTexture')!);
 
-    // create framebuffer
-    // width and height must be the format of "2^n"
-    const fWidth: number = 256;
-    const fHeight: number = 256;
-    const framebuffer: Buffers = createFrameBuffer(gl, fWidth, fHeight);
-
     // define matrix
     const mMatrix: glMat.mat4 = glMat.mat4.create();
     const vMatrix: glMat.mat4 = glMat.mat4.create();
@@ -147,20 +141,16 @@ const setShader = async (): Promise<void> => {
 
     // Textures must be created first or does not work.
     const texture0: WebGLTexture = await createTexture(gl, 'img/texture0.png');
-    const texture1: WebGLTexture = await createTexture(gl, 'img/texture1.png');
-    const texture2: WebGLTexture = await createTexture(gl, 'img/texture0.png');
+    //const texture1: WebGLTexture = await createTexture(gl, 'img/texture1.png');
 
-    // texture 0: active and bind
+    // active texture unit 0
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture0);
 
-    // texture 1: active and bind
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, texture1);
-
-    // texture 2: active and bind
-    gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D, texture2);
+    // create framebuffer
+    // width and height must be the format of "2^n"
+    const fWidth: number = elmCanvas.width;
+    const fHeight: number = elmCanvas.height;
+    const buffers: Buffers = createFrameBuffer(gl, fWidth, fHeight);
 
     // set uniforms
     gl.uniform3fv(uniLocations.get('lightDirection')!, lightDirection);
@@ -168,11 +158,6 @@ const setShader = async (): Promise<void> => {
     gl.uniform4fv(uniLocations.get('ambientColor')!, ambientColor);
 
     const render = (): void => {
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clearDepth(1.0);
-        gl.clearStencil(0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-
         // time count
         const time: number = (new Date().getTime() - initTime) * 0.001;
         // gl.uniform1f(uniLocations.get('time')!, time);
@@ -196,18 +181,31 @@ const setShader = async (): Promise<void> => {
         const vertexAlpha: number = parseFloat(elmAlphaValue.value);
         const outlineSizeRatio: number = parseFloat(elmOutlineSizeRatio.value);
 
+        // bind framebuffer
+        gl.bindFramebuffer(gl.FRAMEBUFFER, buffers.f);
+
+        // initialize buffer
+        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        gl.clearDepth(1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
         // disable alpha blend
         gl.disable(gl.BLEND);
+
+        // set common uniforms
+        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
+        gl.uniform1i(uniLocations.get('texture0')!, 0);
+
+        // bind texture
+        gl.bindTexture(gl.TEXTURE_2D, texture0);
+
+        /*
 
         // set torus attributes
         setAttribute(gl, vboMap.get('torusPosition')!, attributes.get('position')!);
         setAttribute(gl, vboMap.get('torusNormal')!, attributes.get('normal')!);
         setAttribute(gl, vboMap.get('torusColor')!, attributes.get('color')!);
         setAttribute(gl, vboMap.get('torusTextureCoord')!, attributes.get('textureCoord')!);
-
-        // set common uniforms
-        gl.uniform1f(uniLocations.get('vertexAlpha')!, 1.0);
-        gl.uniform1i(uniLocations.get('texture0')!, 0);
 
         // apply torus IBO
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('torus')!);
@@ -236,6 +234,7 @@ const setShader = async (): Promise<void> => {
 
         // draw the torus outline
         gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
+        */
 
 
         // set sphere attributes
@@ -261,16 +260,16 @@ const setShader = async (): Promise<void> => {
         gl.uniform1i(uniLocations.get('isLight')!, 0);
         gl.uniform1i(uniLocations.get('isTexture')!, 1);
 
-        gl.colorMask(true, true, true, true);
-        gl.depthMask(true);
-        gl.stencilFunc(gl.EQUAL, 0, ~0);
-        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+        // gl.colorMask(true, true, true, true);
+        // gl.depthMask(true);
+        // gl.stencilFunc(gl.EQUAL, 0, ~0);
+        // gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
 
         // draw the sphere background
         gl.drawElements(gl.TRIANGLES, sphereVertices.idx.length, gl.UNSIGNED_SHORT, 0);
         //gl.drawArrays(gl.POINTS, 0, sphereVertices.pos.length / 3);
 
-
+/*
         // set torus attributes
         setAttribute(gl, vboMap.get('torusPosition')!, attributes.get('position')!);
         setAttribute(gl, vboMap.get('torusNormal')!, attributes.get('normal')!);
@@ -300,7 +299,15 @@ const setShader = async (): Promise<void> => {
 
         // draw the torus inline
         gl.drawElements(gl.TRIANGLES, torusVertices.idx.length, gl.UNSIGNED_SHORT, 0);
+        */
 
+        // unbind framebuffer: flush automatically
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        // initialize canvas
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearDepth(1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // set square attributes
         setAttribute(gl, vboMap.get('squarePosition')!, attributes.get('position')!);
@@ -309,11 +316,14 @@ const setShader = async (): Promise<void> => {
         setAttribute(gl, vboMap.get('squareTextureCoord')!, attributes.get('textureCoord')!);
 
         // set common uniforms
-        gl.uniform1i(uniLocations.get('texture0')!, 2);
+        gl.uniform1i(uniLocations.get('texture0')!, 0);
         gl.uniform1f(uniLocations.get('vertexAlpha')!, vertexAlpha);
         gl.uniform1f(uniLocations.get('outlineSizeRatio')!, 0.0);
         gl.uniform1i(uniLocations.get('isLight')!, 0);
         gl.uniform1i(uniLocations.get('isTexture')!, 1);
+
+        // bind texture
+        gl.bindTexture(gl.TEXTURE_2D, buffers.t);
 
         // apply square IBO
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboMap.get('square')!);
@@ -579,9 +589,9 @@ const createFrameBuffer = (gl: WebGLRenderingContext, width: number, height: num
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
 
     const stencilRenderBuffer: WebGLRenderbuffer | null = gl.createRenderbuffer();
-    gl.bindRenderbuffer(gl.RENDERBUFFER, stencilRenderBuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, stencilRenderBuffer);
+    // gl.bindRenderbuffer(gl.RENDERBUFFER, stencilRenderBuffer);
+    // gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
+    // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, stencilRenderBuffer);
 
     const fTexture: WebGLTexture | null = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, fTexture);
@@ -592,9 +602,9 @@ const createFrameBuffer = (gl: WebGLRenderingContext, width: number, height: num
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fTexture, 0);
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     return {f: frameBuffer, d: depthRenderBuffer, s: stencilRenderBuffer, t: fTexture};
 };
