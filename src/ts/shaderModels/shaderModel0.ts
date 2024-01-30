@@ -57,8 +57,7 @@ class ShaderModel0 extends ShaderModel {
         this._gl.uniform4fv(this._uniMan.getUniform('ambientColor'), this._ambientColor);
     }
 
-    // allow function to bind "this"
-    public mouseMove = (e: MouseEvent): void  => {
+    public mouseMove(e: MouseEvent): void {
         const halfW: number = this._elmCanvas.width / 2;
         const halfH: number = this._elmCanvas.height / 2;
         const x: number = e.clientX - (this._elmCanvas.clientLeft + halfW);
