@@ -8,7 +8,7 @@ varying vec4 vColor;
 varying vec2 vTextureCoord;
 
 void main() {
-    vec4 texColor0 = texture2D(texture0, vTextureCoord);
-    vec4 color = isTexture ? vColor * texColor0 : vColor;
+    vec4 smpColor0 = texture2D(texture0, vTextureCoord);
+    vec4 color = isTexture ? vColor * smpColor0 : vColor;
     gl_FragColor = color;
 }

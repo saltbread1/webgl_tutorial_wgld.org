@@ -22,8 +22,8 @@ class ShaderModel0 extends ShaderModel {
     private _texture0: WebGLTexture | undefined;
 
     public constructor(gl: WebGLRenderingContext, elmCanvas: HTMLCanvasElement,) {
-        super(gl, readFileSync('src/shader/model0.vert', {encoding: 'utf-8'}),
-            readFileSync('src/shader/model0.frag', {encoding: 'utf-8'}));
+        super(gl, readFileSync('src/shader/3d_model.vert', {encoding: 'utf-8'}),
+            readFileSync('src/shader/3d_model.frag', {encoding: 'utf-8'}));
 
         this._tmpMatrix = mat4.create();
         this._invMatrix = mat4.create();
