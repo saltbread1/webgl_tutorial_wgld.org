@@ -5,11 +5,6 @@ export type Attribute = {
     attStride: number;
 };
 
-export type IBO = {
-    buff: WebGLBuffer;
-    length: number;
-};
-
 export type Vertices = {
     pos: number[];
     nor: number[];
