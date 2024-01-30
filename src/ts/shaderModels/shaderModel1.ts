@@ -7,9 +7,6 @@ import {readFileSync} from "fs";
 
 class ShaderModel1 extends ShaderModel {
     private readonly _tmpMatrix: mat4;
-    private readonly _invMatrix: mat4;
-
-    private readonly _initTime: number;
 
     private readonly _elmCanvas: HTMLCanvasElement;
     private readonly _elmTransparency: HTMLInputElement;
@@ -22,9 +19,6 @@ class ShaderModel1 extends ShaderModel {
             readFileSync('src/shader/quad.frag', {encoding: 'utf-8'}));
 
         this._tmpMatrix = mat4.create();
-        this._invMatrix = mat4.create();
-
-        this._initTime = new Date().getTime();
 
         this._elmCanvas = elmCanvas;
         this._elmTransparency = elmTransparency;
@@ -86,7 +80,6 @@ class ShaderModel1 extends ShaderModel {
         mat4.fromTranslation(this._mMatrix, [0.25, 0.25, 1.0]);
         mat4.rotateZ(this._mMatrix, this._mMatrix, time * Math.PI / 4);
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
-        mat4.invert(this._invMatrix, this._mMatrix);
         // set uniforms
         this._gl.uniformMatrix4fv(this._uniMan.getUniform('mvpMatrix'), false, this._mvpMatrix);
         // draw the model to the buffer
@@ -97,7 +90,6 @@ class ShaderModel1 extends ShaderModel {
         mat4.fromTranslation(this._mMatrix, [-0.25, -0.25, 1.2]);
         mat4.rotateY(this._mMatrix, this._mMatrix, time * Math.PI / 4);
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
-        mat4.invert(this._invMatrix, this._mMatrix);
         // set uniforms
         this._gl.uniformMatrix4fv(this._uniMan.getUniform('mvpMatrix'), false, this._mvpMatrix);
         // draw the model to the buffer

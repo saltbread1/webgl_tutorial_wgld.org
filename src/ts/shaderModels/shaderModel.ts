@@ -16,6 +16,8 @@ abstract class ShaderModel {
     protected readonly _pMatrix: mat4;
     protected readonly _mvpMatrix: mat4;
 
+    protected readonly _initTime: number;
+
     protected constructor(gl: WebGLRenderingContext, vs: string, fs: string) {
         this._gl = gl;
 
@@ -30,6 +32,8 @@ abstract class ShaderModel {
         this._vMatrix = mat4.create();
         this._pMatrix = mat4.create();
         this._mvpMatrix = mat4.create();
+
+        this._initTime = new Date().getTime();
     }
 
     public abstract initialize(): void;

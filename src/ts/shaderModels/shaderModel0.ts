@@ -11,12 +11,6 @@ class ShaderModel0 extends ShaderModel {
     private readonly _qMatrix: mat4;
     private readonly _mouseQuat: quat;
 
-    private readonly _lightDirection: number[];
-    private readonly _eyeDirection: number[];
-    private readonly _ambientColor: number[];
-
-    private readonly _initTime: number;
-
     private readonly _elmCanvas: HTMLCanvasElement;
 
     private _texture0: WebGLTexture | undefined;
@@ -29,12 +23,6 @@ class ShaderModel0 extends ShaderModel {
         this._invMatrix = mat4.create();
         this._qMatrix = mat4.create();
         this._mouseQuat = quat.create();
-
-        this._lightDirection = [-1.0, 1.0, 1.0];
-        this._eyeDirection = [0.0, 0.0, 1.0];
-        this._ambientColor = [0.1, 0.1, 0.1, 0.1];
-
-        this._initTime = new Date().getTime();
 
         this._elmCanvas = elmCanvas;
     }
@@ -51,10 +39,13 @@ class ShaderModel0 extends ShaderModel {
         this._gl.activeTexture(this._gl.TEXTURE0);
 
         // set lights
+        const lightDirection: number[] = [-1.0, 1.0, 1.0];
+        const eyeDirection: number[] = [0.0, 0.0, 1.0];
+        const ambientColor: number[] = [0.1, 0.1, 0.1, 0.1];
         this._gl.useProgram(this._program);
-        this._gl.uniform3fv(this._uniMan.getUniform('lightDirection'), this._lightDirection);
-        this._gl.uniform3fv(this._uniMan.getUniform('eyeDirection'), this._eyeDirection);
-        this._gl.uniform4fv(this._uniMan.getUniform('ambientColor'), this._ambientColor);
+        this._gl.uniform3fv(this._uniMan.getUniform('lightDirection'), lightDirection);
+        this._gl.uniform3fv(this._uniMan.getUniform('eyeDirection'), eyeDirection);
+        this._gl.uniform4fv(this._uniMan.getUniform('ambientColor'), ambientColor);
     }
 
     public mouseMove(e: MouseEvent): void {

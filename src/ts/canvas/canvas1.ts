@@ -1,9 +1,10 @@
 import Canvas from "./canvas";
 import ShaderModel0 from "../shaderModels/shaderModel0";
-import ShaderModel1 from "../shaderModels/shaderModel1";
+import ShaderModel2 from "../shaderModels/shaderModel2";
 import ShaderPath from "../shaderPath";
+import ShaderModel1 from "../shaderModels/shaderModel1";
 
-class Canvas0 extends Canvas {
+class Canvas1 extends Canvas {
     public constructor(c: HTMLCanvasElement) {
         super(c);
     }
@@ -28,21 +29,22 @@ class Canvas0 extends Canvas {
         const elmTransparency: HTMLInputElement = document.getElementById('transparency') as HTMLInputElement;
         const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
         const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
-        //const elmPointSize: HTMLInputElement = document.getElementById("point_size") as HTMLInputElement;
+        const elmBlur: HTMLInputElement = document.getElementById("blur") as HTMLInputElement;
 
         const shaderModel0: ShaderModel0 = new ShaderModel0(this._gl, this._c);
         const shaderModel1: ShaderModel1 = new ShaderModel1(this._gl, this._c, elmTransparency, elmAdd, elmAlphaValue);
+        const shaderModel2: ShaderModel2 = new ShaderModel2(this._gl, this._c, elmBlur);
 
         await shaderModel0.initialize();
-        shaderModel1.initialize();
+        shaderModel2.initialize();
 
         this._c.addEventListener('mousemove', (e: MouseEvent) => shaderModel0.mouseMove(e));
 
         const path: ShaderPath = new ShaderPath(this._gl);
         path.addPath({model: shaderModel0, buffers: this.createFrameBuffer(this._c.width, this._c.height)},
-            {model: shaderModel1, buffers: {f: null, t: null, d: null}});
+            {model: shaderModel2, buffers: {f: null, t: null, d: null}});
         path.startShader(30);
     };
 }
 
-export default Canvas0;
+export default Canvas1;
