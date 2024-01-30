@@ -21,8 +21,9 @@ abstract class ShaderModel {
 
         this._program = new ProgramCreator(this._gl, vs, fs).createProgram()!;
         this._attMan = this.createAttributes(this._program);
-        this._vboMan = this.createVBOs(this._attMan);
-        this._iboMan = this.createIBOs();
+        const vi: {vm: VBOManager, im: IBOManager} = this.createVBOAndIBO(this._attMan);
+        this._vboMan = vi.vm;
+        this._iboMan = vi.im;
         this._uniMan = this.createUniforms(this._program);
 
         this._mMatrix = mat4.create();
@@ -37,9 +38,7 @@ abstract class ShaderModel {
 
     protected abstract createAttributes(program: WebGLProgram): AttributeManager;
 
-    protected abstract createVBOs(attMan: AttributeManager): VBOManager;
-
-    protected abstract createIBOs(): IBOManager;
+    protected abstract createVBOAndIBO(attMan: AttributeManager): {vm: VBOManager, im: IBOManager};
 
     protected abstract createUniforms(program: WebGLProgram): UniformManager;
 

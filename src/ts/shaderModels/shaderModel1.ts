@@ -44,8 +44,6 @@ class ShaderModel1 extends ShaderModel {
     }
 
     public override render(buffers: Buffers): void {
-        this._gl.useProgram(this._program);
-
         // time count
         const time: number = (new Date().getTime() - this._initTime) * 0.001;
 
@@ -61,6 +59,8 @@ class ShaderModel1 extends ShaderModel {
         this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
         this._gl.clearDepth(1.0);
         this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
+
+        this._gl.useProgram(this._program);
 
         // set square attributes
         this._vboMan.setAttribute('squarePosition', 'position');
@@ -114,22 +114,16 @@ class ShaderModel1 extends ShaderModel {
         return ret;
     }
 
-    protected override createVBOs(attMan: AttributeManager): VBOManager {
+    protected override createVBOAndIBO(attMan: AttributeManager): {vm: VBOManager, im: IBOManager} {
         const squareVertices: Vertices = square(1);
 
-        const ret: VBOManager = new VBOManager(this._gl, attMan);
-        ret.addVBO('square', squareVertices);
+        const vm: VBOManager = new VBOManager(this._gl, attMan);
+        vm.addVBO('square', squareVertices);
 
-        return ret;
-    }
+        const im: IBOManager = new IBOManager(this._gl);
+        im.addIBO('square', squareVertices);
 
-    protected override createIBOs(): IBOManager {
-        const squareVertices: Vertices = square(1);
-
-        const ret: IBOManager = new IBOManager(this._gl);
-        ret.addIBO('square', squareVertices);
-
-        return ret;
+        return {vm: vm, im: im};
     }
 
     protected override createUniforms(program: WebGLProgram): UniformManager {

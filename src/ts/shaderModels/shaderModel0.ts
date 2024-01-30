@@ -51,6 +51,7 @@ class ShaderModel0 extends ShaderModel {
         this._gl.activeTexture(this._gl.TEXTURE0);
 
         // set lights
+        this._gl.useProgram(this._program);
         this._gl.uniform3fv(this._uniMan.getUniform('lightDirection'), this._lightDirection);
         this._gl.uniform3fv(this._uniMan.getUniform('eyeDirection'), this._eyeDirection);
         this._gl.uniform4fv(this._uniMan.getUniform('ambientColor'), this._ambientColor);
@@ -70,8 +71,6 @@ class ShaderModel0 extends ShaderModel {
     };
 
     public override render(buffers: Buffers): void {
-        this._gl.useProgram(this._program);
-
         // time count
         const time: number = (new Date().getTime() - this._initTime) * 0.001;
 
@@ -79,6 +78,8 @@ class ShaderModel0 extends ShaderModel {
         this._gl.clearColor(1.0, 1.0, 1.0, 1.0);
         this._gl.clearDepth(1.0);
         this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
+
+        this._gl.useProgram(this._program);
 
         // disable alpha blend
         this._gl.disable(this._gl.BLEND);
@@ -146,6 +147,7 @@ class ShaderModel0 extends ShaderModel {
 
     protected override createAttributes(program: WebGLProgram): AttributeManager {
         const ret: AttributeManager = new AttributeManager(this._gl, program);
+
         ret.addAttribute('position', 3);
         ret.addAttribute('normal', 3);
         ret.addAttribute('color', 4);
@@ -154,26 +156,19 @@ class ShaderModel0 extends ShaderModel {
         return ret;
     }
 
-    protected override createVBOs(attMan: AttributeManager): VBOManager {
+    protected override createVBOAndIBO(attMan: AttributeManager): {vm: VBOManager, im: IBOManager} {
         const torusVertices: Vertices = torus(100, 100, 0.2, 1.5);
         const sphereVertices: Vertices = sphere(100, 100, 2.25);
 
-        const ret: VBOManager = new VBOManager(this._gl, attMan);
-        ret.addVBO('torus', torusVertices);
-        ret.addVBO('sphere', sphereVertices);
+        const vm: VBOManager = new VBOManager(this._gl, attMan);
+        vm.addVBO('torus', torusVertices);
+        vm.addVBO('sphere', sphereVertices);
 
-        return ret;
-    }
+        const im: IBOManager = new IBOManager(this._gl);
+        im.addIBO('torus', torusVertices);
+        im.addIBO('sphere', sphereVertices);
 
-    protected override createIBOs(): IBOManager {
-        const torusVertices: Vertices = torus(100, 100, 0.2, 1.5);
-        const sphereVertices: Vertices = sphere(100, 100, 2.25);
-
-        const ret: IBOManager = new IBOManager(this._gl);
-        ret.addIBO('torus', torusVertices);
-        ret.addIBO('sphere', sphereVertices);
-
-        return ret;
+        return {vm: vm, im: im};
     }
 
     protected override createUniforms(program: WebGLProgram): UniformManager {
