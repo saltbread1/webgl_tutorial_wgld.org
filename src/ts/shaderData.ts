@@ -1,4 +1,4 @@
-import {Attribute, IBO, Vertices} from "./types";
+import {Attribute, Vertices} from "./types";
 
 export class ProgramCreator {
     private readonly _gl: WebGLRenderingContext;
@@ -119,11 +119,11 @@ export class VBOManager {
 
 export class IBOManager {
     private readonly _gl: WebGLRenderingContext;
-    private readonly _iboMap: Map<string, IBO>;
+    private readonly _iboMap: Map<string, {buff: WebGLBuffer, length: number}>;
 
     public constructor(gl: WebGLRenderingContext) {
         this._gl = gl;
-        this._iboMap = new Map<string, IBO>();
+        this._iboMap = new Map<string, {buff: WebGLBuffer, length: number}>();
     }
 
     public addIBO(name: string, data: Vertices): void {
@@ -138,8 +138,8 @@ export class IBOManager {
         return this.getIBO(key).length;
     }
 
-    private getIBO(key: string): IBO {
-        const ret: IBO | undefined = this._iboMap.get(key);
+    private getIBO(key: string): {buff: WebGLBuffer, length: number} {
+        const ret: {buff: WebGLBuffer, length: number} | undefined = this._iboMap.get(key);
         if (ret === undefined) {
             throw new Error(`An element corresponding the key named \"${key}\" does not existed.`);
         }
