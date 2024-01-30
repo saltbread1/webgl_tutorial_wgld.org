@@ -1,7 +1,6 @@
 import {vec3, mat4, quat} from "gl-matrix";
-import {Buffers, Vertices} from "../types";
+import {Buffers, Vertices, BlendType} from "../types";
 import {sphere, square, torus} from "../util";
-import {BlendType} from "../index";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
 
@@ -52,7 +51,7 @@ class ShaderModel0 extends ShaderModel {
         this._buffers = {f: null, d: null, t: null};
     }
 
-    public async initialize(): Promise<void> {
+    public override async initialize(): Promise<void> {
         // calculate view x projection matrix
         mat4.lookAt(this._vMatrix, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
         mat4.perspective(this._pMatrix, 90, this._elmCanvas.width / this._elmCanvas.height, 0.1, 100);

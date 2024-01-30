@@ -1,12 +1,6 @@
 import {readFileSync} from 'fs';
 import ShaderModel0 from "./shaderModels/shaderModel0";
 
-export enum BlendType {
-    ALPHA,
-    ADD,
-    INVALIABLE,
-}
-
 const initCanvas = (): void => {
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     c.width = 512;

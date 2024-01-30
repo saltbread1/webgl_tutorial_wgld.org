@@ -1,6 +1,5 @@
 import {mat4} from "gl-matrix"
-import {Buffers} from "../types";
-import {BlendType} from "../index";
+import {Buffers, BlendType} from "../types";
 import {ProgramCreator, AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
 
 abstract class ShaderModel {
@@ -30,6 +29,8 @@ abstract class ShaderModel {
         this._pMatrix = mat4.create();
         this._mvpMatrix = mat4.create();
     }
+
+    public abstract initialize(): void;
 
     protected abstract render(): void;
 

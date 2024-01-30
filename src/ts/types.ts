@@ -21,3 +21,9 @@ export type Buffers = {
     d: WebGLRenderbuffer | null;
     t: WebGLTexture | null;
 };
+
+export enum BlendType {
+    ALPHA,
+    ADD,
+    INVALIABLE,
+}
