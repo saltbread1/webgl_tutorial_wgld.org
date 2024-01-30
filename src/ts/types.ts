@@ -1,3 +1,5 @@
+import ShaderModel from "./shaderModels/shaderModel";
+
 export type Attribute = {
     attLocation: number;
     attStride: number;
@@ -21,6 +23,11 @@ export type Buffers = {
     d: WebGLRenderbuffer | null;
     t: WebGLTexture | null;
 };
+
+export type Path = {
+    model: ShaderModel;
+    buffers: Buffers;
+}
 
 export enum BlendType {
     ALPHA,

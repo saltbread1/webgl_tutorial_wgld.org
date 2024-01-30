@@ -8,7 +8,7 @@
     "baseUrl": "./",
     "noEmit": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    //"noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
