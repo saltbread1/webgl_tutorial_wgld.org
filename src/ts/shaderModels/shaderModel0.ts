@@ -121,7 +121,7 @@ class ShaderModel0 extends ShaderModel {
         mat4.fromTranslation(this._mMatrix, [0.0, 0.0, 0.0]);
         mat4.fromQuat(this._qMatrix, this._mouseQuat);
         mat4.multiply(this._mMatrix, this._mMatrix, this._qMatrix);
-        mat4.rotateZ(this._mMatrix, this._mMatrix, time * Math.PI / 4);
+        mat4.rotateZ(this._mMatrix, this._mMatrix, -time * Math.PI / 4);
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
         mat4.invert(this._invMatrix, this._mMatrix);
 
@@ -147,8 +147,8 @@ class ShaderModel0 extends ShaderModel {
     }
 
     protected override createVBOAndIBO(attMan: AttributeManager): {vm: VBOManager, im: IBOManager} {
-        const torusVertices: Vertices = torus(100, 100, 0.2, 1.5);
-        const sphereVertices: Vertices = sphere(100, 100, 2.25);
+        const torusVertices: Vertices = torus(128, 128, 0.2, 1.5);
+        const sphereVertices: Vertices = sphere(128, 128, 2.25);
 
         const vm: VBOManager = new VBOManager(this._gl, attMan);
         vm.addVBO('torus', torusVertices);
