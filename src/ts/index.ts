@@ -1,5 +1,6 @@
 import Canvas0 from "./canvas/canvas0";
 import Canvas1 from "./canvas/canvas1";
+import Canvas2 from "./canvas/canvas2";
 
 const initCanvas = async (): Promise<void> => {
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -10,16 +11,17 @@ const initCanvas = async (): Promise<void> => {
 
     const canvas0: Canvas0 = new Canvas0(c);
     const canvas1: Canvas1 = new Canvas1(c);
-    canvas1.initCanvas();
-    await canvas1.initShader();
+    const canvas2: Canvas2 = new Canvas2(c);
+    canvas2.initCanvas();
+    await canvas2.initShader();
     elmSuspension.addEventListener('mouseup', (e: MouseEvent): void => {
         if (elmSuspension.checked) {
-            canvas1.startShader();
+            canvas2.startShader();
         } else {
-            canvas1.suspendShader();
+            canvas2.suspendShader();
         }
     });
-    canvas1.startShader();
+    canvas2.startShader();
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);

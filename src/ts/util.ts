@@ -40,28 +40,28 @@ export const torus = (lRes: number, mRes: number, sRad: number, lRad: number): V
 
 export const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
     const vertices: Vertices = {pos: [], nor: [], col: [], tex: [], idx: []};
-    for (let lon: number = 0; lon <= lonRes; lon++) {
-        const theta: number = Math.PI * lon / lonRes;
-        for (let lat: number = 0; lat <= latRes; lat++) {
-            const phi: number = 2 * Math.PI * lat / latRes;
+    for (let lat: number = 0; lat <= latRes; lat++) {
+        const theta: number = Math.PI * lat / latRes;
+        for (let lon: number = 0; lon <= lonRes; lon++) {
+            const phi: number = 2 * Math.PI * lon / lonRes;
             const x: number = Math.sin(theta)*Math.cos(phi);
             const y: number = Math.sin(theta)*Math.sin(phi);
             const z: number = Math.cos(theta);
             vertices.pos.push(r*x, r*y, r*z);
             vertices.nor.push(x, y, z);
 
-            const rgb: number[] = hsv2rgb(lat/latRes, 1, 1, 1);
+            const rgb: number[] = hsv2rgb(lon/lonRes, 1, 1, 1);
             vertices.col.push(rgb[0], rgb[1], rgb[2], rgb[3]);
 
-            vertices.tex.push(lat/latRes, lon/lonRes);
+            vertices.tex.push(lon/lonRes, lat/latRes);
         }
     }
 
-    for (let lon: number = 0; lon < lonRes; lon++) {
-        for (let lat: number = 0; lat < latRes; lat++) {
-            const i: number = lat + (latRes+1) * lon;
-            vertices.idx.push(i, i+1, i+latRes+1);
-            vertices.idx.push(i+1, i+latRes+2, i+latRes+1);
+    for (let lat: number = 0; lat < latRes; lat++) {
+        for (let lon: number = 0; lon < lonRes; lon++) {
+            const i: number = lon + (lonRes+1) * lat;
+            vertices.idx.push(i, i+1, i+lonRes+1);
+            vertices.idx.push(i+1, i+lonRes+2, i+lonRes+1);
         }
     }
 
