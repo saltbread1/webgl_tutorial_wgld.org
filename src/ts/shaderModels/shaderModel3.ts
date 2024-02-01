@@ -102,7 +102,7 @@ class ShaderModel3 extends ShaderModel {
         const sphereVertices: Vertices = sphere(128, 128, 1);
 
         const vm: VBOManager = new VBOManager(this._gl, attMan);
-        vm.addVBO('sphere', sphereVertices);
+        vm.addVBOFromVertices('sphere', sphereVertices);
 
         const im: IBOManager = new IBOManager(this._gl);
         im.addIBO('sphere', sphereVertices);

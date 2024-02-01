@@ -88,11 +88,16 @@ export class VBOManager {
         this._vboMap = new Map<string, WebGLBuffer>();
     }
 
-    public addVBO(name: string, data: Vertices): void {
-        this._vboMap.set(name + 'Position', this.createVBO(this._gl, data.pos));
-        this._vboMap.set(name + 'Normal', this.createVBO(this._gl, data.nor));
-        this._vboMap.set(name + 'Color', this.createVBO(this._gl, data.col));
-        this._vboMap.set(name + 'TextureCoord', this.createVBO(this._gl, data.tex));
+    public addVBO(name: string, data: number[]): void {
+        this._vboMap.set(name, this.createVBO(this._gl, data));
+    }
+
+    public addVBOFromVertices(name: string, data: Vertices): void {
+        this.addVBO(name + 'Position', data.pos);
+        this.addVBO(name + 'Normal', data.nor);
+        this.addVBO(name + 'Color', data.col);
+        this.addVBO(name + 'TextureCoord', data.tex);
+
     }
 
     public getVBO(key: string): WebGLBuffer {

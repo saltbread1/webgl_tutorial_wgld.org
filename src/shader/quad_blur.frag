@@ -1,6 +1,4 @@
-#ifdef GL_ES
 precision mediump float;
-#endif
 
 #define KERNEL_SIZE 25
 

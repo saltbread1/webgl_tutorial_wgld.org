@@ -7,7 +7,7 @@ class CubeTextureLoadManager extends CubeTextureManager implements TextureLoadMa
 
     public constructor(gl: WebGLRenderingContext) {
         super(gl);
-        this._images = new Array(6);
+        this._images = [];
         this._targets = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
                          gl.TEXTURE_CUBE_MAP_NEGATIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z];
     }
@@ -16,11 +16,12 @@ class CubeTextureLoadManager extends CubeTextureManager implements TextureLoadMa
         const img: HTMLImageElement = new Image();
 
         await new Promise<void>((resolve: () => void): void => {
-            img.onload = (): void => { resolve(); };
+            img.onload = (): void => {
+                this._images.push(img);
+                resolve();
+            };
             img.src = source;
         });
-
-        this._images.push(img);
     }
 
     public createTexture(): void {

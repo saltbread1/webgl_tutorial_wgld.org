@@ -90,7 +90,7 @@ class ShaderModel2 extends ShaderModel {
         const squareVertices: Vertices = square(2);
 
         const vm: VBOManager = new VBOManager(this._gl, attMan);
-        vm.addVBO('square', squareVertices);
+        vm.addVBOFromVertices('square', squareVertices);
 
         const im: IBOManager = new IBOManager(this._gl);
         im.addIBO('square', squareVertices);

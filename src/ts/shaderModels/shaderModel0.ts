@@ -163,8 +163,8 @@ class ShaderModel0 extends ShaderModel {
         const sphereVertices: Vertices = sphere(128, 128, 2.25);
 
         const vm: VBOManager = new VBOManager(this._gl, attMan);
-        vm.addVBO('torus', torusVertices);
-        vm.addVBO('sphere', sphereVertices);
+        vm.addVBOFromVertices('torus', torusVertices);
+        vm.addVBOFromVertices('sphere', sphereVertices);
 
         const im: IBOManager = new IBOManager(this._gl);
         im.addIBO('torus', torusVertices);
