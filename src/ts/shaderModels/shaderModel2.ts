@@ -1,9 +1,11 @@
 import {mat4} from "gl-matrix";
-import {Buffers, Vertices} from "../types";
+import {Vertices} from "../types";
 import {square} from "../util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
 import {readFileSync} from "fs";
+import {TextureBufferManager} from "../textureManagers/textureManager";
+import Framebuffer from "../frameBuffers/framebuffer";
 
 class ShaderModel2 extends ShaderModel {
     private readonly _tmpMatrix: mat4;
@@ -49,7 +51,7 @@ class ShaderModel2 extends ShaderModel {
         this._gl.uniformMatrix4fv(this._uniMan.getUniform('mvpMatrix'), false, this._mvpMatrix);
     }
 
-    public override render(buffers: Buffers): void {
+    public override render<T extends TextureBufferManager>(framebuffer: Framebuffer<T> | null): void {
         // initialize canvas
         this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
         this._gl.clearDepth(1.0);
@@ -65,7 +67,7 @@ class ShaderModel2 extends ShaderModel {
         this._gl.uniform1i(this._uniMan.getUniform('isBlur'), this._elmBlur.checked ? 1 : 0);
 
         // bind texture
-        this._gl.bindTexture(this._gl.TEXTURE_2D, buffers.t);
+        framebuffer?.getTextureManager().bindTexture();
         // apply square IBO
         this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._iboMan.getBuffer('square')!);
         // disable alpha blend

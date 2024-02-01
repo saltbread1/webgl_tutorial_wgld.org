@@ -68,7 +68,7 @@ class ShaderModel0 extends ShaderModel {
         const time: number = (new Date().getTime() - this._initTime) * 0.001;
 
         // initialize buffer
-        this._gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        this._gl.clearColor(0.0, 0.0, 0.0, 0.0);
         this._gl.clearDepth(1.0);
         this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 

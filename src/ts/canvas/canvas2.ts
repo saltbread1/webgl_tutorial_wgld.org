@@ -11,7 +11,7 @@ class Canvas2 extends Canvas {
 
         await shaderModel3.initialize();
 
-        this._path.addPath({model: shaderModel3, buffers: {f: null, t: null, d: null}});
+        this._path.addPath({model: shaderModel3, framebuffer: null});
     };
 }
 

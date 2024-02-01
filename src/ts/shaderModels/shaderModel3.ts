@@ -1,26 +1,27 @@
 import {vec3, mat4} from "gl-matrix";
-import {Buffers, Vertices} from "../types";
+import {Vertices} from "../types";
 import {sphere} from "../util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
 import {readFileSync} from "fs";
+import {TextureBufferManager, TextureLoadManager} from "../textureManagers/textureManager";
+import Framebuffer from "../frameBuffers/framebuffer";
+import Texture2DLoadManager from "../textureManagers/texture2DLoadManager";
 
 class ShaderModel3 extends ShaderModel {
+    private readonly _elmCanvas: HTMLCanvasElement;
     private readonly _tmpMatrix: mat4;
     private readonly _invMatrix: mat4;
-
-    private readonly _elmCanvas: HTMLCanvasElement;
-
-    private _texture0: WebGLTexture | undefined;
+    private readonly _textureManager: TextureLoadManager;
 
     public constructor(gl: WebGLRenderingContext, elmCanvas: HTMLCanvasElement) {
         super(gl, readFileSync('src/shader/bump_map.vert', {encoding: 'utf-8'}),
             readFileSync('src/shader/bump_map.frag', {encoding: 'utf-8'}));
 
+        this._elmCanvas = elmCanvas;
         this._tmpMatrix = mat4.create();
         this._invMatrix = mat4.create();
-
-        this._elmCanvas = elmCanvas;
+        this._textureManager = new Texture2DLoadManager(gl);
     }
 
     public override async initialize(): Promise<void> {
@@ -33,9 +34,8 @@ class ShaderModel3 extends ShaderModel {
         mat4.multiply(this._tmpMatrix, this._vMatrix, this._tmpMatrix);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
 
-        this._texture0 = await this.createTexture('img/normal0.png');
-        // active texture unit 0
-        this._gl.activeTexture(this._gl.TEXTURE0);
+        await this._textureManager.createTexture('img/normal0.png');
+        this._textureManager.activeTexture(this._gl.TEXTURE0);
         this._gl.uniform1i(this._uniMan.getUniform('texture0'), 0);
 
         // set lights
@@ -44,7 +44,7 @@ class ShaderModel3 extends ShaderModel {
         this._gl.uniform3fv(this._uniMan.getUniform('eyePosition'), eyePosition);
     }
 
-    public override render(buffers: Buffers): void {
+    public override render<T extends TextureBufferManager>(framebuffer: Framebuffer<T> | null): void {
         // time count
         const time: number = (new Date().getTime() - this._initTime) * 0.001;
 
@@ -59,7 +59,7 @@ class ShaderModel3 extends ShaderModel {
         this._gl.disable(this._gl.BLEND);
 
         // bind texture
-        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture0!);
+        this._textureManager.bindTexture();
 
         // set sphere attributes
         this._vboMan.setAttribute('spherePosition', 'position');
