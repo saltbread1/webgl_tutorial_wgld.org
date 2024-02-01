@@ -1,5 +1,7 @@
 import {Buffers} from "../types";
 import ShaderPath from "../shaderPath";
+import texture2DBufferManager from "../textureManagers/texture2DBufferManager";
+import Texture2DBufferManager from "../textureManagers/texture2DBufferManager";
 
 abstract class Canvas {
     protected readonly _c: HTMLCanvasElement;
@@ -28,7 +30,7 @@ abstract class Canvas {
         // console.log(`pointSizeRange: ${pointSizeRange[0]} - ${pointSizeRange[1]}`);
     }
 
-    public abstract initShader(): void;
+    public abstract initShader(): void | Promise<void>;
 
     public startShader(): void {
         this._path.startShader(30);
@@ -47,20 +49,14 @@ abstract class Canvas {
         this._gl.renderbufferStorage(this._gl.RENDERBUFFER, this._gl.DEPTH_COMPONENT16, width, height);
         this._gl.framebufferRenderbuffer(this._gl.FRAMEBUFFER, this._gl.DEPTH_ATTACHMENT, this._gl.RENDERBUFFER, depthRenderBuffer);
 
-        const fTexture: WebGLTexture | null = this._gl.createTexture();
-        this._gl.bindTexture(this._gl.TEXTURE_2D, fTexture);
-        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, width, height, 0, this._gl.RGBA, this._gl.UNSIGNED_BYTE, null);
-        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.LINEAR);
-        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.LINEAR);
-        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
-        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
-        this._gl.framebufferTexture2D(this._gl.FRAMEBUFFER, this._gl.COLOR_ATTACHMENT0, this._gl.TEXTURE_2D, fTexture, 0);
+        const bm: Texture2DBufferManager = new texture2DBufferManager(this._gl);
+        bm.createTexture(width, height);
+        bm.attachFrameBuffer();
 
-        this._gl.bindTexture(this._gl.TEXTURE_2D, null);
         this._gl.bindRenderbuffer(this._gl.RENDERBUFFER, null);
         this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
 
-        return {f: frameBuffer, d: depthRenderBuffer, t: fTexture};
+        return {f: frameBuffer, d: depthRenderBuffer, t: bm.texture};
     };
 }
 

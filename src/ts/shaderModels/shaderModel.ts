@@ -46,26 +46,6 @@ abstract class ShaderModel {
 
     protected abstract createUniforms(program: WebGLProgram): UniformManager;
 
-    protected createTexture(source: string): Promise<WebGLTexture> {
-        return new Promise<WebGLTexture>((resolve: (value: WebGLTexture) => void): void => {
-            const img: HTMLImageElement = new Image();
-
-            img.onload = (): void => {
-                const texture: WebGLTexture = this._gl.createTexture()!;
-                this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
-                this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, img);
-                this._gl.generateMipmap(this._gl.TEXTURE_2D);
-                this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.LINEAR);
-                this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.LINEAR);
-                this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
-                this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
-                this._gl.bindTexture(this._gl.TEXTURE_2D, null);
-                resolve(texture);
-            };
-            img.src = source;
-        });
-    }
-
     protected blend(type: BlendType): void {
         switch (type) {
             case BlendType.ALPHA:

@@ -4,27 +4,29 @@ import {sphere, torus} from "../util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
 import {readFileSync} from "fs";
+import {TextureLoadManager} from "../textureManagers/textureManager";
+import Texture2DLoadManager from "../textureManagers/texture2DLoadManager";
 
 class ShaderModel0 extends ShaderModel {
+    private readonly _elmCanvas: HTMLCanvasElement;
+
     private readonly _tmpMatrix: mat4;
     private readonly _invMatrix: mat4;
     private readonly _qMatrix: mat4;
     private readonly _mouseQuat: quat;
 
-    private readonly _elmCanvas: HTMLCanvasElement;
-
-    private _texture0: WebGLTexture | undefined;
+    private readonly _textureManager: TextureLoadManager;
 
     public constructor(gl: WebGLRenderingContext, elmCanvas: HTMLCanvasElement,) {
         super(gl, readFileSync('src/shader/3d_model.vert', {encoding: 'utf-8'}),
             readFileSync('src/shader/3d_model.frag', {encoding: 'utf-8'}));
 
+        this._elmCanvas = elmCanvas;
         this._tmpMatrix = mat4.create();
         this._invMatrix = mat4.create();
         this._qMatrix = mat4.create();
         this._mouseQuat = quat.create();
-
-        this._elmCanvas = elmCanvas;
+        this._textureManager = new Texture2DLoadManager(gl);
     }
 
     public override async initialize(): Promise<void> {
@@ -34,9 +36,9 @@ class ShaderModel0 extends ShaderModel {
         mat4.multiply(this._tmpMatrix, this._vMatrix, this._tmpMatrix);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
 
-        this._texture0 = await this.createTexture('img/texture0.png');
+        await this._textureManager.createTexture('img/texture0.png');
         // active texture unit 0
-        this._gl.activeTexture(this._gl.TEXTURE0);
+        this._textureManager.activeTexture(this._gl.TEXTURE0);
 
         // set lights
         const lightDirection: number[] = [-1.0, 1.0, 1.0];
@@ -77,8 +79,13 @@ class ShaderModel0 extends ShaderModel {
         // set common uniforms
         this._gl.uniform1i(this._uniMan.getUniform('texture0'), 0);
 
+        this.renderModel0(time);
+        this.renderModel1(time);
+    }
+
+    private renderModel0(time: number): void {
         // bind texture
-        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture0!);
+        this._textureManager.bindTexture();
 
         // set sphere attributes
         this._vboMan.setAttribute('spherePosition', 'position');
@@ -105,8 +112,11 @@ class ShaderModel0 extends ShaderModel {
 
         // draw the sphere background
         this._gl.drawElements(this._gl.TRIANGLES, this._iboMan.getLength('sphere'), this._gl.UNSIGNED_SHORT, 0);
-        //gl.drawArrays(gl.POINTS, 0, sphereVertices.pos.length / 3);
+    }
 
+    private renderModel1(time: number): void {
+        // unbind texture
+        this._textureManager.unbindTexture();
 
         // set torus attributes
         this._vboMan.setAttribute('torusPosition', 'position');
