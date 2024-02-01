@@ -1,6 +1,8 @@
 import Canvas from "./canvas";
 import ShaderModel0 from "../shaderModels/shaderModel0";
 import ShaderModel1 from "../shaderModels/shaderModel1";
+import Framebuffer from "../frameBuffers/framebuffer";
+import Texture2DBufferManager from "../textureManagers/texture2DBufferManager";
 
 class Canvas0 extends Canvas {
     public constructor(c: HTMLCanvasElement) {
@@ -20,8 +22,10 @@ class Canvas0 extends Canvas {
 
         this._c.addEventListener('mousemove', (e: MouseEvent) => shaderModel0.mouseMove(e));
 
-        this._path.addPath({model: shaderModel0, buffers: this.createFrameBuffer(this._c.width, this._c.height)},
-            {model: shaderModel1, buffers: {f: null, t: null, d: null}});
+        const buff0: Framebuffer<Texture2DBufferManager> = new Framebuffer<Texture2DBufferManager>(this._gl, new Texture2DBufferManager(this._gl));
+        buff0.initializeFrameBuffer(this._c.width, this._c.height);
+        this._path.addPath({model: shaderModel0, framebuffer: buff0},
+            {model: shaderModel1, framebuffer: null});
     };
 }
 

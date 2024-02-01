@@ -7,9 +7,10 @@ class Texture2DLoadManager extends Texture2DManager implements TextureLoadManage
     }
 
     public async createTexture(source: string): Promise<void> {
-        await new Promise<void>((resolve: () => void): void => {
-            const img: HTMLImageElement = new Image();
+        const img: HTMLImageElement = new Image();
+        this._texture = this._gl.createTexture();
 
+        await new Promise<void>((resolve: () => void): void => {
             img.onload = (): void => {
                 this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
                 this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, img);

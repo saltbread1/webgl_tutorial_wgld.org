@@ -1,9 +1,11 @@
 import {mat4} from "gl-matrix";
-import {Buffers, Vertices, BlendType} from "../types";
+import {Vertices, BlendType} from "../types";
 import {square} from "../util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
 import {readFileSync} from "fs";
+import {TextureBufferManager} from "../textureManagers/textureManager";
+import Framebuffer from "../frameBuffers/framebuffer";
 
 class ShaderModel1 extends ShaderModel {
     private readonly _tmpMatrix: mat4;
@@ -37,7 +39,7 @@ class ShaderModel1 extends ShaderModel {
         this._gl.activeTexture(this._gl.TEXTURE0);
     }
 
-    public override render(buffers: Buffers): void {
+    public override render<T extends TextureBufferManager>(framebuffer: Framebuffer<T> | null): void {
         // time count
         const time: number = (new Date().getTime() - this._initTime) * 0.001;
 
@@ -67,7 +69,7 @@ class ShaderModel1 extends ShaderModel {
         this._gl.uniform1i(this._uniMan.getUniform('isTexture'), 1);
 
         // bind texture
-        this._gl.bindTexture(this._gl.TEXTURE_2D, buffers.t);
+        framebuffer?.getTextureManager().bindTexture();
 
         // apply square IBO
         this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._iboMan.getBuffer('square')!);

@@ -1,11 +1,12 @@
 import {vec3, mat4, quat} from "gl-matrix";
-import {Buffers, Vertices} from "../types";
+import {Vertices} from "../types";
 import {sphere, torus} from "../util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
 import {readFileSync} from "fs";
-import {TextureLoadManager} from "../textureManagers/textureManager";
+import {TextureBufferManager, TextureLoadManager} from "../textureManagers/textureManager";
 import Texture2DLoadManager from "../textureManagers/texture2DLoadManager";
+import Framebuffer from "../frameBuffers/framebuffer";
 
 class ShaderModel0 extends ShaderModel {
     private readonly _elmCanvas: HTMLCanvasElement;
@@ -62,7 +63,7 @@ class ShaderModel0 extends ShaderModel {
         quat.setAxisAngle(this._mouseQuat, axis, rad);
     };
 
-    public override render(buffers: Buffers): void {
+    public override render<T extends TextureBufferManager>(framebuffer: Framebuffer<T> | null): void {
         // time count
         const time: number = (new Date().getTime() - this._initTime) * 0.001;
 

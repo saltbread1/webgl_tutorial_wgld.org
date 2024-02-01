@@ -1,4 +1,11 @@
-import {Buffers, Path} from "./types";
+import ShaderModel from "./shaderModels/shaderModel";
+import Framebuffer from "./frameBuffers/framebuffer";
+import Texture2DBufferManager from "./textureManagers/texture2DBufferManager";
+
+type Path = {
+    model: ShaderModel;
+    framebuffer: Framebuffer<Texture2DBufferManager> | null;
+}
 
 class ShaderPath {
     private readonly _gl: WebGLRenderingContext;
@@ -16,12 +23,13 @@ class ShaderPath {
 
     public startShader(fps: number): void {
         this._intervalID = window.setInterval((): void => {
-            let preBuff: Buffers = {f: null, d: null, t: null};
+            let preBuff: Framebuffer<Texture2DBufferManager> | null = null;
             this._paths.forEach((path: Path): void => {
-                this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, path.buffers.f);
+                const buff: WebGLFramebuffer | null = path.framebuffer === null ? null : path.framebuffer.getFramebuffer;
+                this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, buff);
                 path.model.render(preBuff);
                 this._gl.flush();
-                preBuff = path.buffers;
+                preBuff = path.framebuffer;
             });
         }, 1000 / fps);
     }

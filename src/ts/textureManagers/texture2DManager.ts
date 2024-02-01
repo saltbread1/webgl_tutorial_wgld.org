@@ -2,11 +2,11 @@ import {TextureManager} from "./textureManager";
 
 abstract class Texture2DManager implements TextureManager {
     protected readonly _gl: WebGLRenderingContext;
-    protected readonly _texture: WebGLTexture;
+    protected _texture: WebGLTexture | null;
 
     protected constructor(gl: WebGLRenderingContext) {
         this._gl = gl;
-        this._texture = gl.createTexture()!;
+        this._texture = null;
     }
 
     protected setTexParams(): void {

@@ -1,6 +1,8 @@
 import {mat4} from "gl-matrix"
-import {Buffers, BlendType} from "../types";
+import {BlendType} from "../types";
 import {ProgramCreator, AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
+import Framebuffer from "../frameBuffers/framebuffer";
+import {TextureBufferManager} from "../textureManagers/textureManager";
 
 abstract class ShaderModel {
     protected readonly _gl: WebGLRenderingContext;
@@ -38,7 +40,7 @@ abstract class ShaderModel {
 
     public abstract initialize(): void;
 
-    public abstract render(buffers: Buffers): void;
+    public abstract render<T extends TextureBufferManager>(framebuffer: Framebuffer<T> | null): void;
 
     protected abstract createAttributes(program: WebGLProgram): AttributeManager;
 

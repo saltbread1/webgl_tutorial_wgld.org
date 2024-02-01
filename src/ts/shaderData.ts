@@ -1,4 +1,9 @@
-import {Attribute, Vertices} from "./types";
+import {Vertices} from "./types";
+
+type Attribute = {
+    attLocation: number;
+    attStride: number;
+};
 
 export class ProgramCreator {
     private readonly _gl: WebGLRenderingContext;
