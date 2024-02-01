@@ -8,10 +8,10 @@ class Texture2DBufferManager extends Texture2DManager implements TextureBufferMa
 
     public createTexture(width: number, height: number): void {
         this._texture = this._gl.createTexture();
-        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+        this.bindTexture();
         this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, width, height, 0, this._gl.RGBA, this._gl.UNSIGNED_BYTE, null);
         this.setTexParams();
-        this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+        this.unbindTexture();
     }
 
     public attachFrameBuffer() : void{

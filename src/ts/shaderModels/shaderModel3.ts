@@ -34,7 +34,8 @@ class ShaderModel3 extends ShaderModel {
         mat4.multiply(this._tmpMatrix, this._vMatrix, this._tmpMatrix);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
 
-        await this._textureManager.createTexture('img/normal0.png');
+        await this._textureManager.loadImage('img/normal0.png');
+        this._textureManager.createTexture();
         this._textureManager.activeTexture(this._gl.TEXTURE0);
         this._gl.uniform1i(this._uniMan.getUniform('texture0'), 0);
 
