@@ -13,7 +13,7 @@ varying   vec4 vColor;
 void main(void)
 {
     vPosition   = (mMatrix * vec4(position, 1.0)).xyz;
-    vNormal     = (vec4(normal, 0.0) * invMatrix).xyz;
+    vNormal     = normalize((vec4(normal, 0.0) * invMatrix).xyz);
     vColor      = color;
     gl_Position = mvpMatrix * vec4(position, 1.0);
 }

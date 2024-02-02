@@ -10,16 +10,18 @@ import CubeTextureLoadManager from "../textureManagers/CubeTextureLoadManager";
 
 class CubeMap extends ShaderModel {
     private readonly _elmCanvas: HTMLCanvasElement;
+    private readonly _elmEta: HTMLInputElement;
     private readonly _tmpMatrix: mat4;
     private readonly _invMatrix: mat4;
     private readonly _mouseQuat: quat;
     private readonly _textureManager: TextureLoadManager;
 
-    public constructor(gl: WebGLRenderingContext, elmCanvas: HTMLCanvasElement) {
+    public constructor(gl: WebGLRenderingContext, elmCanvas: HTMLCanvasElement, elmEta: HTMLInputElement) {
         super(gl, readFileSync('src/shader/cube_map.vert', {encoding: 'utf-8'}),
             readFileSync('src/shader/cube_map.frag', {encoding: 'utf-8'}));
 
         this._elmCanvas = elmCanvas;
+        this._elmEta = elmEta;
         this._tmpMatrix = mat4.create();
         this._invMatrix = mat4.create();
         this._mouseQuat = quat.create();
@@ -63,6 +65,9 @@ class CubeMap extends ShaderModel {
         this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 
         this._gl.useProgram(this._program);
+
+        const eta: number = parseFloat(this._elmEta.value);
+        this._gl.uniform1f(this._uniMan.getUniform('eta'), eta);
 
         // disable alpha blend
         this._gl.disable(this._gl.BLEND);
@@ -170,6 +175,7 @@ class CubeMap extends ShaderModel {
         ret.addUniform('eyePosition');
         ret.addUniform('cubeTexture');
         ret.addUniform('isReflection');
+        ret.addUniform('eta');
 
         return ret;
     }

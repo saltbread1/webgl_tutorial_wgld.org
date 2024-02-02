@@ -7,7 +7,8 @@ class Canvas3 extends Canvas {
     }
 
     public override async initShader(): Promise<void> {
-        const cubeMap: CubeMap = new CubeMap(this._gl, this._c);
+        const elmEta: HTMLInputElement = document.getElementById('eta') as HTMLInputElement;
+        const cubeMap: CubeMap = new CubeMap(this._gl, this._c, elmEta);
 
         await cubeMap.initialize();
 
