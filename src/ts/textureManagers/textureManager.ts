@@ -5,7 +5,7 @@ export interface TextureManagerBase {
 }
 
 export interface TextureLoadManager extends TextureManagerBase {
-    loadImage(source: string): Promise<void>;
+    loadImage(source: string, target?: number): Promise<void>;
     createTexture(): void;
 }
 

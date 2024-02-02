@@ -5,11 +5,11 @@ abstract class Texture2DManager extends TextureManager {
         super(gl);
     }
 
-    public bindTexture(): void {
+    public override bindTexture(): void {
         this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
     }
 
-    public unbindTexture(): void {
+    public override unbindTexture(): void {
         this._gl.bindTexture(this._gl.TEXTURE_2D, null);
     }
 

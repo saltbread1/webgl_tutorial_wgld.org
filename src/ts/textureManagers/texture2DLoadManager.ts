@@ -9,7 +9,7 @@ class Texture2DLoadManager extends Texture2DManager implements TextureLoadManage
         this._image = null;
     }
 
-    public async loadImage(source: string): Promise<void> {
+    public async loadImage(source: string, target?: number): Promise<void> {
         this._image = new Image();
 
         await new Promise<void>((resolve: () => void): void => {

@@ -5,11 +5,11 @@ abstract class CubeTextureManager extends TextureManager {
         super(gl);
     }
 
-    public bindTexture(): void {
+    public override bindTexture(): void {
         this._gl.bindTexture(this._gl.TEXTURE_CUBE_MAP, this._texture);
     }
 
-    public unbindTexture(): void {
+    public override unbindTexture(): void {
         this._gl.bindTexture(this._gl.TEXTURE_CUBE_MAP, null);
     }
 
