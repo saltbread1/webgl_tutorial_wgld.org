@@ -1,12 +1,12 @@
 import {vec3, mat4, quat} from "gl-matrix";
-import {Vertices} from "../types";
+import {Vertices} from "../type";
 import {sphere, torus} from "../util";
 import ShaderModel from "./shaderModel";
-import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
+import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelData";
 import {readFileSync} from "fs";
-import {TextureBufferManager, TextureLoadManager} from "../textureManagers/textureManager";
-import Texture2DLoadManager from "../textureManagers/texture2DLoadManager";
-import Framebuffer from "../frameBuffers/framebuffer";
+import {TextureBufferManager, TextureLoadManager} from "../textureManager/textureManager";
+import Texture2DLoadManager from "../textureManager/texture2DLoadManager";
+import Framebuffer from "../frameBuffer/framebuffer";
 
 class ShaderModel0 extends ShaderModel {
     private readonly _elmCanvas: HTMLCanvasElement;

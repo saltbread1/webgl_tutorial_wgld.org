@@ -1,8 +1,8 @@
 import {mat4} from "gl-matrix"
-import {BlendType} from "../types";
-import {ProgramCreator, AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
-import Framebuffer from "../frameBuffers/framebuffer";
-import {TextureBufferManager} from "../textureManagers/textureManager";
+import {BlendType} from "../type";
+import {ProgramCreator, AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelData";
+import Framebuffer from "../frameBuffer/framebuffer";
+import {TextureBufferManager} from "../textureManager/textureManager";
 
 abstract class ShaderModel {
     protected readonly _gl: WebGLRenderingContext;

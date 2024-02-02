@@ -1,12 +1,12 @@
 import {vec3, mat4} from "gl-matrix";
-import {Vertices} from "../types";
+import {Vertices} from "../type";
 import {cube} from "../util";
 import ShaderModel from "./shaderModel";
-import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../shaderData";
+import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelData";
 import {readFileSync} from "fs";
-import {TextureBufferManager, TextureLoadManager} from "../textureManagers/textureManager";
-import Framebuffer from "../frameBuffers/framebuffer";
-import CubeTextureLoadManager from "../textureManagers/CubeTextureLoadManager";
+import {TextureBufferManager, TextureLoadManager} from "../textureManager/textureManager";
+import Framebuffer from "../frameBuffer/framebuffer";
+import CubeTextureLoadManager from "../textureManager/CubeTextureLoadManager";
 
 class DynamicCubeMap0 extends ShaderModel {
     private readonly _elmCanvas: HTMLCanvasElement;

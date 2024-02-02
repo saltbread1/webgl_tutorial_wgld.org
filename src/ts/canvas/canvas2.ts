@@ -7,7 +7,7 @@ class Canvas2 extends Canvas {
     }
 
     public override async initShader(): Promise<void> {
-        const shaderModel3: ShaderModel3 = new ShaderModel3(this._gl, this._c);
+        const shaderModel3: ShaderModel3 = new ShaderModel3(this._gl, this._canvas);
 
         await shaderModel3.initialize();
 

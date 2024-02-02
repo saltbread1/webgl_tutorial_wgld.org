@@ -1,8 +1,7 @@
 import Canvas from "./canvas";
-import ShaderModel0 from "../shaderModels/shaderModel0";
-import ShaderModel1 from "../shaderModels/shaderModel1";
-import Framebuffer from "../frameBuffers/framebuffer";
-import Texture2DBufferManager from "../textureManagers/texture2DBufferManager";
+import Framebuffer from "../frameBuffer/framebuffer";
+import Texture2DBufferManager from "../textureManager/texture2DBufferManager";
+import Renderer0 from "../renderer/renderer0";
 
 class Canvas0 extends Canvas {
     public constructor(c: HTMLCanvasElement) {
@@ -14,18 +13,16 @@ class Canvas0 extends Canvas {
         const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
         const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
 
-        const shaderModel0: ShaderModel0 = new ShaderModel0(this._gl, this._c);
-        const shaderModel1: ShaderModel1 = new ShaderModel1(this._gl, this._c, elmTransparency, elmAdd, elmAlphaValue);
+        const renderer0: Renderer0 = new Renderer0(this._canvas, this._gl);
 
-        await shaderModel0.initialize();
-        shaderModel1.initialize();
+        renderer0.createModels();
+        await renderer0.preProcess();
 
-        this._c.addEventListener('mousemove', (e: MouseEvent) => shaderModel0.mouseMove(e));
+        this._canvas.addEventListener('mousemove', (e: MouseEvent) => renderer0.mouseMove(e));
 
-        const buff0: Framebuffer<Texture2DBufferManager> = new Framebuffer<Texture2DBufferManager>(this._gl, new Texture2DBufferManager(this._gl));
-        buff0.initializeFrameBuffer(this._c.width, this._c.height);
-        this._path.addPath({model: shaderModel0, framebuffer: buff0},
-            {model: shaderModel1, framebuffer: null});
+        // const buff0: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl));
+        // buff0.initialize(this._canvas.width, this._canvas.height);
+        this._path.addPath({renderer: renderer0});
     };
 }
 

@@ -1,10 +1,5 @@
-import ShaderModel from "./shaderModels/shaderModel";
-import Framebuffer from "./frameBuffers/framebuffer";
-
-type Path = {
-    model: ShaderModel;
-    framebuffer: Framebuffer<any> | null;
-}
+import Framebuffer from "./frameBuffer/framebuffer";
+import {Path} from "./type";
 
 class ShaderPath {
     private readonly _gl: WebGLRenderingContext;
@@ -22,11 +17,11 @@ class ShaderPath {
 
     public startShader(fps: number): void {
         this._intervalID = window.setInterval((): void => {
-            let preBuff: Framebuffer<any> | null = null;
+            let preBuff: Framebuffer | undefined;
             this._paths.forEach((path: Path): void => {
-                const buff: WebGLFramebuffer | null = path.framebuffer === null ? null : path.framebuffer.getFramebuffer;
+                const buff: WebGLFramebuffer | null = path.framebuffer ? path.framebuffer.getFramebuffer : null;
                 this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, buff);
-                path.model.render<any>(preBuff);
+                path.renderer.render(fps, preBuff);
                 this._gl.flush();
                 preBuff = path.framebuffer;
             });

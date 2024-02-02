@@ -11,10 +11,10 @@ const initCanvas = async (): Promise<void> => {
 
     const elmSuspension: HTMLInputElement = document.getElementById('suspension') as HTMLInputElement;
 
-    const canvas: Canvas = new Canvas3(c);
+    const canvas: Canvas = new Canvas0(c);
     canvas.initCanvas();
     await canvas.initShader();
-    elmSuspension.addEventListener('mouseup', (e: MouseEvent): void => {
+    elmSuspension.addEventListener('mouseup', (): void => {
         if (elmSuspension.checked) {
             canvas.startShader();
         } else {
