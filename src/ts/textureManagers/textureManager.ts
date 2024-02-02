@@ -10,8 +10,8 @@ export interface TextureLoadManager extends TextureManagerBase {
 }
 
 export interface TextureBufferManager extends TextureManagerBase {
-    createTexture(width: number, height: number): void;
-    attachFrameBuffer(): void;
+    createTexture(width: number, height: number, targets?: number[]): void;
+    attachFramebuffer(target?: number): void;
 }
 
 export abstract class TextureManager implements TextureManagerBase {

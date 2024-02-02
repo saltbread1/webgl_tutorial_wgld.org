@@ -25,7 +25,7 @@ class Framebuffer<T extends TextureBufferManager> {
         return this._textureManager;
     }
 
-    public initializeFrameBuffer(width: number, height: number): void {
+    public initializeFrameBuffer(width: number, height: number, isAttach: boolean = true): void {
         this._framebuffer = this._gl.createFramebuffer();
         this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, this._framebuffer);
 
@@ -36,7 +36,7 @@ class Framebuffer<T extends TextureBufferManager> {
         this._gl.bindRenderbuffer(this._gl.RENDERBUFFER, null);
 
         this._textureManager.createTexture(width, height);
-        this._textureManager.attachFrameBuffer();
+        if (isAttach)  { this._textureManager.attachFramebuffer(); }
 
         this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
     };
