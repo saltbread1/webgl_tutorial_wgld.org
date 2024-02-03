@@ -1,7 +1,6 @@
-import {TextureLoadManager} from "./textureManager";
 import CubeTextureManager from "./CubeTextureManager";
 
-class CubeTextureLoadManager extends CubeTextureManager implements TextureLoadManager {
+class CubeTextureLoadManager extends CubeTextureManager {
     private readonly _images: {img: HTMLImageElement, t: number | undefined}[];
     private readonly _targets: number[];
 
@@ -29,14 +28,14 @@ class CubeTextureLoadManager extends CubeTextureManager implements TextureLoadMa
     public createTexture(): void {
         this._texture = this._gl.createTexture();
 
-        this.bindTexture();
-        for (let i: number = 0; i < 6; i++) {
-            const target: number = this._images[i].t === undefined ? this._targets[i] : this._images[i].t!;
-            this._gl.texImage2D(target, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._images[i].img);
-        }
-        this._gl.generateMipmap(this._gl.TEXTURE_CUBE_MAP);
-        this.setTexParams();
-        this.unbindTexture();
+        this.useTexture((): void => {
+            for (let i: number = 0; i < 6; i++) {
+                const target: number = this._images[i].t ? this._images[i].t! : this._targets[i];
+                this._gl.texImage2D(target, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._images[i].img);
+            }
+            this._gl.generateMipmap(this._gl.TEXTURE_CUBE_MAP);
+            this.setTexParams();
+        });
     }
 }
 

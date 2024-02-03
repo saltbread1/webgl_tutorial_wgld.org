@@ -1,15 +1,15 @@
-import {TextureManager} from "./textureManager";
+import TextureManager from "./textureManager";
 
 abstract class Texture2DManager extends TextureManager {
     protected constructor(gl: WebGLRenderingContext) {
         super(gl);
     }
 
-    public override bindTexture(): void {
+    public override useTexture(func: () => void, unit: number = this._gl.TEXTURE0): void {
+        this._gl.activeTexture(unit);
         this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-    }
-
-    public override unbindTexture(): void {
+        func();
+        this._gl.activeTexture(unit);
         this._gl.bindTexture(this._gl.TEXTURE_2D, null);
     }
 

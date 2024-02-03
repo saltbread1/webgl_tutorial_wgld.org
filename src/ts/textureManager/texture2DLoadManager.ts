@@ -1,15 +1,13 @@
-import {TextureLoadManager} from "./textureManager";
 import Texture2DManager from "./texture2DManager";
 
-class Texture2DLoadManager extends Texture2DManager implements TextureLoadManager {
-    private _image: HTMLImageElement | null;
+class Texture2DLoadManager extends Texture2DManager {
+    private _image: HTMLImageElement | undefined;
 
     public constructor(gl: WebGLRenderingContext) {
         super(gl);
-        this._image = null;
     }
 
-    public async loadImage(source: string, target?: number): Promise<void> {
+    public async loadImage(source: string): Promise<void> {
         this._image = new Image();
 
         await new Promise<void>((resolve: () => void): void => {
@@ -19,15 +17,15 @@ class Texture2DLoadManager extends Texture2DManager implements TextureLoadManage
     }
 
     public createTexture(): void {
-        if (this._image === null) {
+        if (!this._image) {
             throw new Error('Must load a image before create a texture.');
         }
         this._texture = this._gl.createTexture();
-        this.bindTexture();
-        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._image);
-        this._gl.generateMipmap(this._gl.TEXTURE_2D);
-        this.setTexParams();
-        this.unbindTexture();
+        this.useTexture((): void => {
+            this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._image!);
+            this._gl.generateMipmap(this._gl.TEXTURE_2D);
+            this.setTexParams();
+        });
     }
 }
 

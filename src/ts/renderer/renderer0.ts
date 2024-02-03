@@ -7,7 +7,6 @@ import {readFileSync} from "fs";
 import {Vertices} from "../type";
 import {sphere, torus} from "../util";
 import Model0 from "../model/model0";
-import {TextureLoadManager} from "../textureManager/textureManager";
 import Texture2DLoadManager from "../textureManager/texture2DLoadManager";
 
 class Renderer0 extends Renderer {
@@ -20,7 +19,7 @@ class Renderer0 extends Renderer {
     private readonly _qMatrix: mat4 = mat4.create();
     private readonly _mouseQuat: quat = quat.create();
 
-    private readonly _textureManager: TextureLoadManager;
+    private readonly _textureManager: Texture2DLoadManager;
 
     public constructor(canvas: HTMLCanvasElement, gl: WebGLRenderingContext) {
         super(canvas, gl);
@@ -73,7 +72,6 @@ class Renderer0 extends Renderer {
 
         await this._textureManager.loadImage('img/texture0.png');
         this._textureManager.createTexture();
-        this._textureManager.activeTexture(this._gl.TEXTURE0);
 
         mat4.lookAt(this._vMatrix, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
         mat4.perspective(this._pMatrix, 90, this._canvas.width / this._canvas.height, 0.1, 100);
@@ -98,11 +96,10 @@ class Renderer0 extends Renderer {
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
         mat4.invert(this._invMatrix, this._mMatrix);
 
-        this._textureManager.bindTexture();
-        this._models.get('sphere')!.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 0, isTexture: 1});
-
-        this._textureManager.unbindTexture();
-        this._models.get('torus')!.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 1, isTexture: 0});
+        this._textureManager.useTexture((): void => {
+            this._models.get('torus')!.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 1, isTexture: 0});
+            this._models.get('sphere')!.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 0, isTexture: 1});
+        }, this._gl.TEXTURE0);
     }
 
     public mouseMove(e: MouseEvent): void {

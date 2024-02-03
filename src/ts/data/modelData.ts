@@ -19,11 +19,9 @@ class ModelDataManager {
         this._uniMan = new UniformManager(gl);
     }
 
-    public useProgram(): void {
+    public useProgram(func: () => void): void {
         this._gl.useProgram(this._program.get);
-    }
-
-    public disuseProgram(): void {
+        func();
         this._gl.useProgram(null);
     }
 
@@ -63,11 +61,9 @@ class ModelDataManager {
         return this._vboMan.getPointLength;
     }
 
-    public bindIBO(): void {
-        this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._iboMan.get)
-    }
-
-    public unbindIBO(): void {
+    public useIBO(func: () => void): void {
+        this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._iboMan.get);
+        func();
         this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
