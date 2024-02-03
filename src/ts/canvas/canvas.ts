@@ -1,14 +1,14 @@
-import ShaderPath from "../shaderPath";
+import RenderPath from "../renderPath";
 
 abstract class Canvas {
     protected readonly _canvas: HTMLCanvasElement;
     protected readonly _gl: WebGLRenderingContext;
-    protected readonly _path: ShaderPath;
+    protected readonly _path: RenderPath;
 
     protected constructor(canvas: HTMLCanvasElement) {
         this._canvas = canvas;
         this._gl = canvas.getContext('webgl')!;
-        this._path = new ShaderPath(this._gl);
+        this._path = new RenderPath(this._gl);
     }
 
     public initCanvas(): void {

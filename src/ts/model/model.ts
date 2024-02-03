@@ -1,19 +1,21 @@
-import ModelDataManager from "../data/modelData";
+import ModelDataProcessor from "../data/modelDataProcessor";
 
 abstract class Model {
     protected readonly _gl: WebGLRenderingContext;
-    protected readonly _modelData: ModelDataManager;
+    protected readonly _mdp: ModelDataProcessor;
 
-    protected constructor(gl: WebGLRenderingContext, modelData: ModelDataManager) {
+    protected constructor(gl: WebGLRenderingContext, modelData: ModelDataProcessor) {
         this._gl = gl;
-        this._modelData = modelData;
+        this._mdp = modelData;
     }
 
-    public preProcess(): void {
-        // none
+    public render(data: any): void {
+        this._mdp.useProgram((): void => {
+            this.mainRender(data);
+        });
     }
 
-    public abstract render(data: any): void;
+    protected abstract mainRender(data: any): void;
 }
 
 export default Model;

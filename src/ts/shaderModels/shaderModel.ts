@@ -1,7 +1,7 @@
 import {mat4} from "gl-matrix"
 import {BlendType} from "../type";
-import {ProgramCreator, AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelData";
-import Framebuffer from "../frameBuffer/framebuffer";
+import {ProgramCreator, AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelDataProcessor";
+import Framebuffer from "../framebuffer";
 import {TextureBufferManager} from "../textureManager/textureManager";
 
 abstract class ShaderModel {

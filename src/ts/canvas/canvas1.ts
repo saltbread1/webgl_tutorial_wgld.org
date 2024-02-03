@@ -1,7 +1,7 @@
 import Canvas from "./canvas";
 import ShaderModel0 from "../shaderModels/shaderModel0";
 import ShaderModel2 from "../shaderModels/shaderModel2";
-import Framebuffer from "../frameBuffer/framebuffer";
+import Framebuffer from "../framebuffer";
 import Texture2DBufferManager from "../textureManager/texture2DBufferManager";
 
 class Canvas1 extends Canvas {

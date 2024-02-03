@@ -1,13 +1,17 @@
 import Renderer from "./renderer";
 import {mat4, quat, vec3} from "gl-matrix";
-import Framebuffer from "../frameBuffer/framebuffer";
-import ModelDataManager from "../data/modelData";
+import Framebuffer from "../framebuffer";
+import ModelDataProcessor from "../data/modelDataProcessor";
 import Program from "../data/program";
 import {readFileSync} from "fs";
 import {Vertices} from "../type";
 import {sphere, torus} from "../util";
 import Model0 from "../model/model0";
 import Texture2DLoadManager from "../textureManager/texture2DLoadManager";
+import VBOManager from "../data/vboManager";
+import AttributeManager from "../data/attributeManager";
+import IBOManager from "../data/iboManager";
+import UniformManager from "../data/uniformManager";
 
 class Renderer0 extends Renderer {
     private readonly _mMatrix: mat4 = mat4.create();
@@ -31,40 +35,39 @@ class Renderer0 extends Renderer {
         program.create(readFileSync('src/shader/3d_model.vert', {encoding: 'utf-8'}),
             readFileSync('src/shader/3d_model.frag', {encoding: 'utf-8'}));
 
-        const modelData0: ModelDataManager = new ModelDataManager(this._gl, program);
         const v0: Vertices = torus(128, 128, 0.2, 1.5);
-        modelData0.createVertexData('position', v0.pos!, 3);
-        modelData0.createVertexData('normal', v0.nor!, 3);
-        modelData0.createVertexData('color', v0.col!, 4);
-        modelData0.createVertexData('textureCoord', v0.st!, 2);
-        modelData0.createIBO(v0.idx!);
-        modelData0.createUniformData('mvpMatrix');
-        modelData0.createUniformData('invMatrix');
-        modelData0.createUniformData('lightDirection');
-        modelData0.createUniformData('eyeDirection');
-        modelData0.createUniformData('ambientColor');
-        modelData0.createUniformData('texture0');
-        modelData0.createUniformData('isLight');
-        modelData0.createUniformData('isTexture');
-
-        const modelData1: ModelDataManager = new ModelDataManager(this._gl, program);
         const v1: Vertices = sphere(128, 128, 2.25);
-        modelData1.createVertexData('position', v1.pos!, 3);
-        modelData1.createVertexData('normal', v1.nor!, 3);
-        modelData1.createVertexData('color', v1.col!, 4);
-        modelData1.createVertexData('textureCoord', v1.st!, 2);
-        modelData1.createIBO(v1.idx!);
-        modelData1.createUniformData('mvpMatrix');
-        modelData1.createUniformData('invMatrix');
-        modelData1.createUniformData('lightDirection');
-        modelData1.createUniformData('eyeDirection');
-        modelData1.createUniformData('ambientColor');
-        modelData1.createUniformData('texture0');
-        modelData1.createUniformData('isLight');
-        modelData1.createUniformData('isTexture');
 
-        this._models.set('torus', new Model0(this._gl, modelData0));
-        this._models.set('sphere', new Model0(this._gl, modelData1));
+        const attMan: AttributeManager = new AttributeManager(this._gl);
+        attMan.addAttributeInfos(program.get,
+            {name: 'position', stride: 3},
+            {name: 'normal', stride: 3},
+            {name: 'color', stride: 4},
+            {name: 'textureCoord', stride: 2});
+
+        const vboMan0: VBOManager = new VBOManager(this._gl);
+        vboMan0.addBuffers({name: 'position', data: v0.pos!, stride: 3},
+            {name: 'normal', data: v0.nor!, stride: 3},
+            {name: 'color', data: v0.col!, stride: 4},
+            {name: 'textureCoord', data: v0.st!, stride: 2});
+
+        const vboMan1: VBOManager = new VBOManager(this._gl);
+        vboMan1.addBuffers({name: 'position', data: v1.pos!, stride: 3},
+            {name: 'normal', data: v1.nor!, stride: 3},
+            {name: 'color', data: v1.col!, stride: 4},
+            {name: 'textureCoord', data: v1.st!, stride: 2});
+
+        const iboMan0: IBOManager = new IBOManager(this._gl);
+        iboMan0.setIBOInfo(v0.idx!);
+
+        const iboMan1: IBOManager = new IBOManager(this._gl);
+        iboMan1.setIBOInfo(v1.idx!);
+
+        const uniMan: UniformManager = new UniformManager(this._gl);
+        uniMan.addLocations(program.get, 'mvpMatrix', 'invMatrix', 'lightDirection', 'eyeDirection', 'ambientColor', 'texture0', 'isLight', 'isTexture');
+
+        this._models.set('torus', new Model0(this._gl, new ModelDataProcessor(this._gl, program, attMan, vboMan0, iboMan0, uniMan)));
+        this._models.set('sphere', new Model0(this._gl, new ModelDataProcessor(this._gl, program, attMan, vboMan1, iboMan1, uniMan)));
     }
 
     public override async preProcess(): Promise<void> {
@@ -77,9 +80,6 @@ class Renderer0 extends Renderer {
         mat4.perspective(this._pMatrix, 90, this._canvas.width / this._canvas.height, 0.1, 100);
         mat4.multiply(this._tmpMatrix, this._vMatrix, this._tmpMatrix);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
-
-        this._models.get('torus')!.preProcess();
-        this._models.get('sphere')!.preProcess();
     }
 
     public override render(fps: number): void {

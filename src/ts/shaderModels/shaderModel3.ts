@@ -2,10 +2,10 @@ import {vec3, mat4} from "gl-matrix";
 import {Vertices} from "../type";
 import {sphere} from "../util";
 import ShaderModel from "./shaderModel";
-import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelData";
+import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelDataProcessor";
 import {readFileSync} from "fs";
 import {TextureBufferManager, TextureLoadManager} from "../textureManager/textureManager";
-import Framebuffer from "../frameBuffer/framebuffer";
+import Framebuffer from "../framebuffer";
 import Texture2DLoadManager from "../textureManager/texture2DLoadManager";
 
 class ShaderModel3 extends ShaderModel {

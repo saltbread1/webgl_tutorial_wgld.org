@@ -1,5 +1,5 @@
 import Model from "../model/model";
-import Framebuffer from "../frameBuffer/framebuffer";
+import Framebuffer from "../framebuffer";
 
 abstract class Renderer {
     protected readonly _canvas: HTMLCanvasElement;

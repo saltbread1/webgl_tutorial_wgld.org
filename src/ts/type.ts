@@ -1,15 +1,10 @@
-import Framebuffer from "./frameBuffer/framebuffer";
+import Framebuffer from "./framebuffer";
 import Renderer from "./renderer/renderer";
 
 export type AttrInfo = {
     attLocation: number;
     attStride: number;
 };
-
-export type IBOInfo = {
-    buff: WebGLBuffer;
-    length: number;
-}
 
 export type Vertices = {
     pos?: number[];
@@ -22,4 +17,4 @@ export type Vertices = {
 export type Path = {
     renderer: Renderer;
     framebuffer?: Framebuffer;
-}
+};
