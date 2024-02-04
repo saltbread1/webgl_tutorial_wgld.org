@@ -45,6 +45,9 @@ class Renderer0 extends Renderer {
             {name: 'color', stride: 4},
             {name: 'textureCoord', stride: 2});
 
+        const uniMan: UniformManager = new UniformManager(this._gl);
+        uniMan.addLocations(program.get, 'mvpMatrix', 'invMatrix', 'lightDirection', 'eyeDirection', 'ambientColor', 'texture0', 'isLight', 'isTexture');
+
         const vboMan0: VBOManager = new VBOManager(this._gl);
         vboMan0.addBuffers({name: 'position', data: v0.pos!, stride: 3},
             {name: 'normal', data: v0.nor!, stride: 3},
@@ -63,11 +66,8 @@ class Renderer0 extends Renderer {
         const iboMan1: IBOManager = new IBOManager(this._gl);
         iboMan1.setIBOInfo(v1.idx!);
 
-        const uniMan: UniformManager = new UniformManager(this._gl);
-        uniMan.addLocations(program.get, 'mvpMatrix', 'invMatrix', 'lightDirection', 'eyeDirection', 'ambientColor', 'texture0', 'isLight', 'isTexture');
-
-        this._models.set('torus', new Model0(this._gl, new ModelDataProcessor(this._gl, program, attMan, vboMan0, iboMan0, uniMan)));
-        this._models.set('sphere', new Model0(this._gl, new ModelDataProcessor(this._gl, program, attMan, vboMan1, iboMan1, uniMan)));
+        this._models.set('torus', new Model0(this._gl, new ModelDataProcessor(this._gl, program, attMan, uniMan, vboMan0, iboMan0)));
+        this._models.set('sphere', new Model0(this._gl, new ModelDataProcessor(this._gl, program, attMan, uniMan, vboMan1, iboMan1)));
     }
 
     public override async preProcess(): Promise<void> {
