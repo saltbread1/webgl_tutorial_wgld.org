@@ -2,14 +2,16 @@ import Model from "../model/model";
 import Framebuffer from "../framebuffer";
 
 abstract class Renderer {
-    protected readonly _canvas: HTMLCanvasElement;
     protected readonly _gl: WebGLRenderingContext;
+    protected readonly _width: number;
+    protected readonly _height: number;
     protected readonly _models: Map<string, Model>;
     protected _currSec: number = 0;
 
-    protected constructor(canvas: HTMLCanvasElement, gl: WebGLRenderingContext) {
-        this._canvas = canvas;
+    protected constructor(gl: WebGLRenderingContext, width: number, height: number) {
         this._gl = gl;
+        this._width = width;
+        this._height = height;
         this._models = new Map<string, Model>;
     }
 

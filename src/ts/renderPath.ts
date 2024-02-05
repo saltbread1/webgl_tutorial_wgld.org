@@ -15,7 +15,9 @@ class RenderPath {
         paths.forEach((p: Path): number => this._paths.push(p));
     }
 
-    public startShader(fps: number): void {
+    public startRender(fps: number): void {
+        if (!this._intervalID === undefined) { return; }
+
         this._intervalID = window.setInterval((): void => {
             let preBuff: Framebuffer | undefined;
             this._paths.forEach((path: Path): void => {
@@ -31,8 +33,9 @@ class RenderPath {
         }, 1000 / fps);
     }
 
-    public suspendShader(): void {
+    public suspendRender(): void {
         window.clearInterval(this._intervalID);
+        this._intervalID = undefined;
     }
 }
 

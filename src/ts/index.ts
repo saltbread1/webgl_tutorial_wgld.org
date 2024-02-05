@@ -9,19 +9,21 @@ const initCanvas = async (): Promise<void> => {
     c.width = 960;
     c.height = 540;
 
-    const elmSuspension: HTMLInputElement = document.getElementById('suspension') as HTMLInputElement;
-
     const canvas: Canvas = new Canvas0(c);
     canvas.initCanvas();
     await canvas.initShader();
+
+    const fps: number = 30;
+    const elmSuspension: HTMLInputElement = document.getElementById('suspension') as HTMLInputElement;
     elmSuspension.addEventListener('mouseup', (): void => {
         if (elmSuspension.checked) {
-            canvas.startShader();
+            canvas.play(fps);
         } else {
-            canvas.suspendShader();
+            canvas.pause();
         }
     });
-    canvas.startShader();
+
+    canvas.play(fps);
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);

@@ -14,7 +14,7 @@ class ShaderModel2 extends ShaderModel {
     private readonly _elmBlur: HTMLInputElement;
 
     public constructor(gl: WebGLRenderingContext, elmCanvas: HTMLCanvasElement, elmBlur: HTMLInputElement) {
-        super(gl, readFileSync('src/shader/quad.vert', {encoding: 'utf-8'}),
+        super(gl, readFileSync('src/shader/2d_model.vert', {encoding: 'utf-8'}),
             readFileSync('src/shader/quad_blur.frag', {encoding: 'utf-8'}));
 
         this._tmpMatrix = mat4.create();

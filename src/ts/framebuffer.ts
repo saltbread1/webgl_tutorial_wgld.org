@@ -13,12 +13,6 @@ class Framebuffer {
         this._texMan = texMan;
     }
 
-    public useFramebuffer(func: () => void): void {
-        this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, this._framebuffer);
-        func();
-        this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
-    }
-
     public initialize(width: number, height: number, isAttach: boolean = true): void {
         this._framebuffer = this._gl.createFramebuffer();
         this.useFramebuffer((): void => {
@@ -32,6 +26,16 @@ class Framebuffer {
             if (isAttach)  { this._texMan.attachFramebuffer(); }
         });
     };
+
+    public useFramebuffer(func: () => void): void {
+        this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, this._framebuffer);
+        func();
+        this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
+    }
+
+    public useTexture(func: () => void): void {
+        this._texMan.useTexture(func);
+    }
 }
 
 export default Framebuffer;

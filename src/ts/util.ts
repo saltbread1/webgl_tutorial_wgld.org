@@ -1,4 +1,5 @@
-import { Vertices } from './type';
+import {Vertices} from './type';
+import {BlendType} from "./enum";
 
 export const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices => {
     const pos: number[] = [];
@@ -162,4 +163,18 @@ export const fract = (x: number): number => {
 
 export const clamp01 = (x: number): number => {
     return Math.max(Math.min(x, 1), 0);
+};
+
+
+export const blend = (gl: WebGLRenderingContext, type: BlendType): void => {
+    switch (type) {
+    case BlendType.ALPHA:
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+        break;
+    case BlendType.ADD:
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
+        break;
+    default:
+        throw new Error('This blend type is illegal.');
+    }
 };

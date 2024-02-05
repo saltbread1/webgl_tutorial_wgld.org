@@ -1,6 +1,5 @@
 import Renderer from "./renderer";
 import {mat4, quat, vec3} from "gl-matrix";
-import Framebuffer from "../framebuffer";
 import ModelDataProcessor from "../data/modelDataProcessor";
 import Program from "../data/program";
 import {readFileSync} from "fs";
@@ -25,8 +24,8 @@ class Renderer0 extends Renderer {
 
     private readonly _textureManager: Texture2DLoadManager;
 
-    public constructor(canvas: HTMLCanvasElement, gl: WebGLRenderingContext) {
-        super(canvas, gl);
+    public constructor(gl: WebGLRenderingContext, width: number, height: number) {
+        super(gl, width, height);
         this._textureManager = new Texture2DLoadManager(gl);
     }
 
@@ -77,7 +76,7 @@ class Renderer0 extends Renderer {
         this._textureManager.createTexture();
 
         mat4.lookAt(this._vMatrix, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
-        mat4.perspective(this._pMatrix, 90, this._canvas.width / this._canvas.height, 0.1, 100);
+        mat4.perspective(this._pMatrix, 90, this._width / this._height, 0.1, 100);
         mat4.multiply(this._tmpMatrix, this._vMatrix, this._tmpMatrix);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
     }
@@ -85,7 +84,7 @@ class Renderer0 extends Renderer {
     public override render(fps: number): void {
         this._currSec += 1 / fps;
 
-        this._gl.clearColor(0.0, 0.0, 0.0, 0.0);
+        this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
         this._gl.clearDepth(1.0);
         this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 
@@ -97,16 +96,16 @@ class Renderer0 extends Renderer {
         mat4.invert(this._invMatrix, this._mMatrix);
 
         this._textureManager.useTexture((): void => {
-            this._models.get('torus')!.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 1, isTexture: 0});
-            this._models.get('sphere')!.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 0, isTexture: 1});
+            this._models.get('torus')?.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 1, isTexture: 0});
+            this._models.get('sphere')?.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 0, isTexture: 1});
         }, this._gl.TEXTURE0);
     }
 
-    public mouseMove(e: MouseEvent): void {
-        const halfW: number = this._canvas.width / 2;
-        const halfH: number = this._canvas.height / 2;
-        const x: number = e.clientX - (this._canvas.clientLeft + halfW);
-        const y: number = -(e.clientY - (this._canvas.clientTop + halfH));
+    public mouseMove(e: MouseEvent, c: HTMLCanvasElement): void {
+        const halfW: number = c.width / 2;
+        const halfH: number = c.height / 2;
+        const x: number = e.clientX - (c.clientLeft + halfW);
+        const y: number = -(e.clientY - (c.clientTop + halfH));
         const rad: number = Math.PI * Math.sqrt((x*x+y*y)/(halfW*halfW+halfH*halfH));
         const axis: vec3 = vec3.create();
         vec3.normalize(axis, [x, y, 0]);

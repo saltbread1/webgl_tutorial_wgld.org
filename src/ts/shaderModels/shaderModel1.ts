@@ -17,8 +17,8 @@ class ShaderModel1 extends ShaderModel {
 
     public constructor(gl: WebGLRenderingContext, elmCanvas: HTMLCanvasElement,
                        elmTransparency: HTMLInputElement, elmAdd: HTMLInputElement, elmAlphaValue: HTMLInputElement) {
-        super(gl, readFileSync('src/shader/quad.vert', {encoding: 'utf-8'}),
-            readFileSync('src/shader/quad.frag', {encoding: 'utf-8'}));
+        super(gl, readFileSync('src/shader/2d_model.vert', {encoding: 'utf-8'}),
+            readFileSync('src/shader/2d_model.frag', {encoding: 'utf-8'}));
 
         this._tmpMatrix = mat4.create();
 
