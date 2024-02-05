@@ -38,7 +38,7 @@ class Renderer2 extends Renderer {
         program.create(readFileSync('src/shader/2d_model.vert', {encoding: 'utf-8'}),
             readFileSync('src/shader/2d_model.frag', {encoding: 'utf-8'}));
 
-        const v: Vertices = square(2);
+        const v: Vertices = square(1.5);
 
         const attMan: AttributeManager = new AttributeManager(this._gl);
         attMan.addAttributeInfos(program.get,
@@ -76,6 +76,7 @@ class Renderer2 extends Renderer {
         this._gl.clearDepth(1.0);
         this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 
+        this._gl.disable(this._gl.DEPTH_TEST);
         this._gl.enable(this._gl.BLEND);
 
         let blendType: BlendType = BlendType.INVALIABLE;
@@ -89,14 +90,20 @@ class Renderer2 extends Renderer {
 
         const vertexAlpha: number = parseFloat(this._elmAlphaValue.value);
 
-        mat4.fromTranslation(this._mMatrix, [0.0, 0.0, 0.0]);
-        mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
-
         framebuffer?.useTexture((): void => {
+            mat4.fromTranslation(this._mMatrix, [0.5, 0.0, 0.0]);
+            mat4.rotateY(this._mMatrix, this._mMatrix, -this._currSec * Math.PI * 0.25);
+            mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
+            this._models.get('square')?.render({mvpMatrix: this._mvpMatrix, vertexAlpha: vertexAlpha});
+
+            mat4.fromTranslation(this._mMatrix, [-0.5, 0.0, -0.2]);
+            mat4.rotateZ(this._mMatrix, this._mMatrix, this._currSec * Math.PI * 0.1);
+            mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
             this._models.get('square')?.render({mvpMatrix: this._mvpMatrix, vertexAlpha: vertexAlpha});
         });
 
-        //this._gl.disable(this._gl.BLEND);
+        this._gl.disable(this._gl.BLEND);
+        this._gl.enable(this._gl.DEPTH_TEST);
     }
 }
 

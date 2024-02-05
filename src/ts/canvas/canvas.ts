@@ -29,12 +29,11 @@ abstract class Canvas {
 
     public abstract initShader(): void | Promise<void>;
 
-    public play(fps: number): void {
-        this._path.startRender(fps);
-    }
-
-    public pause(): void {
-        this._path.suspendRender();
+    public play(fps: number, elmPause: HTMLInputElement): void {
+        window.setInterval((): void => {
+            if (elmPause.checked) { return; }
+            this._path.render(fps);
+        }, 1000 / fps);
     }
 }
 

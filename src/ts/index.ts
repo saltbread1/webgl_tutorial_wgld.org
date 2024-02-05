@@ -15,15 +15,7 @@ const initCanvas = async (): Promise<void> => {
 
     const fps: number = 30;
     const elmSuspension: HTMLInputElement = document.getElementById('suspension') as HTMLInputElement;
-    elmSuspension.addEventListener('mouseup', (): void => {
-        if (elmSuspension.checked) {
-            canvas.play(fps);
-        } else {
-            canvas.pause();
-        }
-    });
-
-    canvas.play(fps);
+    canvas.play(fps, elmSuspension);
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);
