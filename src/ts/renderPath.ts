@@ -16,7 +16,8 @@ class RenderPath {
     }
 
     public startRender(fps: number): void {
-        if (!this._intervalID === undefined) { return; }
+        console.log(this._intervalID);
+        if (!this._intervalID === undefined) { console.log('a'); return; }
 
         this._intervalID = window.setInterval((): void => {
             let preBuff: Framebuffer | undefined;
@@ -31,6 +32,8 @@ class RenderPath {
                 preBuff = path.framebuffer;
             });
         }, 1000 / fps);
+
+        console.log(this._intervalID);
     }
 
     public suspendRender(): void {

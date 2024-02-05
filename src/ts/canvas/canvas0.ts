@@ -16,15 +16,15 @@ class Canvas0 extends Canvas {
         const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
         const elmBlur: HTMLInputElement = document.getElementById('blur') as HTMLInputElement;
 
-        const fWidth: number = 256;
-        const fHeight: number = 256;
-        const buff0: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl));
-        buff0.initialize(this._canvas.width, this._canvas.height);
-        const buff1: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl));
-        buff1.initialize(this._canvas.width, this._canvas.height);
+        const fWidth: number = 512;
+        const fHeight: number = 512;
+        const buff0: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
+        buff0.initialize();
+        const buff1: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
+        buff1.initialize();
 
         const renderer0: Renderer0 = new Renderer0(this._gl, fWidth, fHeight);
-        const renderer1: Renderer1 = new Renderer1(this._gl, this._canvas.width, this._canvas.height, elmBlur);
+        const renderer1: Renderer1 = new Renderer1(this._gl, fWidth, fHeight, elmBlur);
         const renderer2: Renderer2 = new Renderer2(this._gl, this._canvas.width, this._canvas.height, elmTransparency, elmAdd, elmAlphaValue);
 
         renderer0.createModels();
