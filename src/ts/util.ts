@@ -1,7 +1,7 @@
 import {Vertices} from './type';
 import {BlendType} from "./enum";
 
-export const torus = (lRes: number, mRes: number, sRad: number, lRad: number): Vertices => {
+export const torus = (lRes: number, mRes: number, sRad: number, lRad: number, isColorful: boolean = false): Vertices => {
     const pos: number[] = [];
     const nor: number[] = [];
     const col: number[] = [];
@@ -25,7 +25,7 @@ export const torus = (lRes: number, mRes: number, sRad: number, lRad: number): V
             nor.push(nx, ny, nz);
 
             // color
-            const rgb: number[] = hsv2rgb(lon/lRes, 1, 1, 1);
+            const rgb: number[] = isColorful ? hsv2rgb(lon/lRes, 1, 1, 1) : [1.0, 1.0, 1.0, 1.0];
             col.push(rgb[0], rgb[1], rgb[2], rgb[3]);
 
             // st-coordinate
@@ -44,7 +44,7 @@ export const torus = (lRes: number, mRes: number, sRad: number, lRad: number): V
     return {pos: pos, nor: nor, col: col, st: st, idx: idx};
 };
 
-export const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
+export const sphere = (latRes: number, lonRes: number, r: number, isColorful: boolean = false): Vertices => {
     const pos: number[] = [];
     const nor: number[] = [];
     const col: number[] = [];
@@ -61,7 +61,7 @@ export const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
             pos.push(r*x, r*y, r*z);
             nor.push(x, y, z);
 
-            const rgb: number[] = hsv2rgb(lon/lonRes, 1, 1, 1);
+            const rgb: number[] = isColorful ? hsv2rgb(lon/lonRes, 1, 1, 1) : [1.0, 1.0, 1.0, 1.0];
             col.push(rgb[0], rgb[1], rgb[2], rgb[3]);
 
             st.push(lon/lonRes, lat/latRes);
@@ -79,22 +79,17 @@ export const sphere = (latRes: number, lonRes: number, r: number): Vertices => {
     return {pos: pos, nor: nor, col: col, st: st, idx: idx};
 };
 
-export const square = (edgeLength: number): Vertices => {
+export const square = (edgeLength: number, isColorful: boolean = false): Vertices => {
     const pos: number[] = [
         -1.0,  1.0,  0.0,
         1.0,  1.0,  0.0,
         -1.0, -1.0,  0.0,
         1.0, -1.0,  0.0,
     ].map((n: number) => n * 0.5 * edgeLength);
-    const nor: number[] = [
-        0.0, 0.0, 1.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, 1.0,
-    ];
     const col: number[] = [];
     for(let i: number = 0; i < pos.length / 3; i++) {
-        col.push(1.0, 1.0, 1.0, 1.0);
+        const rgb: number[] = isColorful ? hsv2rgb(i*3/pos.length, 1, 1, 1) : [1.0, 1.0, 1.0, 1.0];
+        col.push(rgb[0], rgb[1], rgb[2], rgb[3]);
     }
     const st: number[] = [
         0.0, 0.0,
@@ -103,14 +98,14 @@ export const square = (edgeLength: number): Vertices => {
         1.0, 1.0,
     ];
     const idx: number[] = [
-        0, 1, 2,
-        3, 2, 1,
+        2, 1, 0,
+        1, 2, 3,
     ];
 
-    return {pos: pos, nor: nor, col: col, st: st, idx: idx};
+    return {pos: pos, col: col, st: st, idx: idx};
 };
 
-export const cube = (edgeLength: number): Vertices => {
+export const cube = (edgeLength: number, isColorful: boolean = false): Vertices => {
     const pos: number[] = [
         -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,
         -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,
@@ -119,17 +114,11 @@ export const cube = (edgeLength: number): Vertices => {
         1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,
         -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0
     ].map((n: number) => n * 0.5 * edgeLength);
-    const nor: number[] = [
-        -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,
-        -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,
-        -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,
-        -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,
-        1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,
-        -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0
-    ];
+    const nor: number[] = pos;
     const col: number[] = [];
     for(let i: number = 0; i < pos.length / 3; i++) {
-        col.push(1.0, 1.0, 1.0, 1.0);
+        const rgb: number[] = isColorful ? hsv2rgb(i*3/pos.length, 1, 1, 1) : [1.0, 1.0, 1.0, 1.0];
+        col.push(rgb[0], rgb[1], rgb[2], rgb[3]);
     }
     const st: number[] = [
         0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,

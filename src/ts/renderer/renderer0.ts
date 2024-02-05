@@ -34,8 +34,8 @@ class Renderer0 extends Renderer {
         program.create(readFileSync('src/shader/3d_model.vert', {encoding: 'utf-8'}),
             readFileSync('src/shader/3d_model.frag', {encoding: 'utf-8'}));
 
-        const v0: Vertices = torus(128, 128, 0.2, 1.5);
-        const v1: Vertices = sphere(128, 128, 2.25);
+        const v0: Vertices = torus(128, 128, 0.2, 1.5, true);
+        const v1: Vertices = sphere(128, 128, 2.25, true);
 
         const attMan: AttributeManager = new AttributeManager(this._gl);
         attMan.addAttributeInfos(program.get,
