@@ -1,15 +1,15 @@
 import Renderer from "./renderer";
 import {mat4} from "gl-matrix";
 import Program from "../data/program";
-import {loadFile, square} from "../util";
-import {Vertices} from "../type";
+import {loadFile, square} from "../util/util";
+import {Vertices} from "../util/type";
 import AttributeManager from "../data/attributeManager";
 import UniformManager from "../data/uniformManager";
 import VBOManager from "../data/vboManager";
 import IBOManager from "../data/iboManager";
 import Model1 from "../model/model1";
 import ModelDataProcessor from "../data/modelDataProcessor";
-import Framebuffer from "../framebuffer";
+import Framebuffer from "../data/framebuffer";
 
 class Renderer1 extends Renderer {
     private readonly _elmBlur: HTMLInputElement;

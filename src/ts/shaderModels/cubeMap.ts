@@ -1,11 +1,11 @@
 import {vec3, mat4, quat} from "gl-matrix";
-import {Vertices} from "../type";
-import {cube, sphere} from "../util";
+import {Vertices} from "../util/type";
+import {cube, sphere} from "../util/util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelDataProcessor";
 import {readFileSync} from "fs";
 import {TextureBufferManager, TextureLoadManager} from "../textureManager/textureManager";
-import Framebuffer from "../framebuffer";
+import Framebuffer from "../data/framebuffer";
 import CubeTextureLoadManager from "../textureManager/CubeTextureLoadManager";
 
 class CubeMap extends ShaderModel {

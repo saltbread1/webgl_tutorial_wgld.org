@@ -1,5 +1,5 @@
-import Framebuffer from "./framebuffer";
-import {Path} from "./type";
+import Framebuffer from "../data/framebuffer";
+import {Path} from "../util/type";
 
 class RenderPath {
     private readonly _gl: WebGLRenderingContext;

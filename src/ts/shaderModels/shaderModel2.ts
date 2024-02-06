@@ -1,11 +1,11 @@
 import {mat4} from "gl-matrix";
-import {Vertices} from "../type";
-import {square} from "../util";
+import {Vertices} from "../util/type";
+import {square} from "../util/util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelDataProcessor";
 import {readFileSync} from "fs";
 import {TextureBufferManager} from "../textureManager/textureManager";
-import Framebuffer from "../framebuffer";
+import Framebuffer from "../data/framebuffer";
 
 class ShaderModel2 extends ShaderModel {
     private readonly _tmpMatrix: mat4;

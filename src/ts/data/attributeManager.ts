@@ -1,4 +1,4 @@
-import {AttrInfo} from "../type";
+import {AttrInfo} from "../util/type";
 
 class AttributeManager {
     private readonly _gl: WebGLRenderingContext;

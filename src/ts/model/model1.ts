@@ -1,7 +1,7 @@
 import ModelDataProcessor from "../data/modelDataProcessor";
 import Model from "./model";
 import {mat4} from "gl-matrix";
-import {UniformType} from "../enum";
+import {UniformType} from "../util/enum";
 
 class Model1 extends Model {
     private readonly _kernel: number[] = [

@@ -1,5 +1,5 @@
 import Model from "../model/model";
-import Framebuffer from "../framebuffer";
+import Framebuffer from "../data/framebuffer";
 
 abstract class Renderer {
     protected readonly _gl: WebGLRenderingContext;

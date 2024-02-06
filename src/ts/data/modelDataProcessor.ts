@@ -1,10 +1,10 @@
-import {AttrInfo} from "../type";
+import {AttrInfo} from "../util/type";
 import Program from "./program";
 import AttributeManager from "./attributeManager";
 import VBOManager from "./vboManager";
 import IBOManager from "./iboManager";
 import UniformManager from "./uniformManager";
-import {UniformType} from "../enum";
+import {UniformType} from "../util/enum";
 
 class ModelDataProcessor {
     private readonly _gl: WebGLRenderingContext;

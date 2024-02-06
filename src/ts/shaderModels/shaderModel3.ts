@@ -1,11 +1,11 @@
 import {vec3, mat4} from "gl-matrix";
-import {Vertices} from "../type";
-import {sphere} from "../util";
+import {Vertices} from "../util/type";
+import {sphere} from "../util/util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelDataProcessor";
 import {readFileSync} from "fs";
 import {TextureBufferManager, TextureLoadManager} from "../textureManager/textureManager";
-import Framebuffer from "../framebuffer";
+import Framebuffer from "../data/framebuffer";
 import Texture2DLoadManager from "../textureManager/texture2DLoadManager";
 
 class ShaderModel3 extends ShaderModel {

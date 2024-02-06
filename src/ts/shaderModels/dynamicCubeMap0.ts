@@ -1,11 +1,11 @@
 import {vec3, mat4} from "gl-matrix";
-import {Vertices} from "../type";
-import {cube} from "../util";
+import {Vertices} from "../util/type";
+import {cube} from "../util/util";
 import ShaderModel from "./shaderModel";
 import {AttributeManager, VBOManager, IBOManager, UniformManager} from "../data/modelDataProcessor";
 import {readFileSync} from "fs";
 import {TextureBufferManager, TextureLoadManager} from "../textureManager/textureManager";
-import Framebuffer from "../framebuffer";
+import Framebuffer from "../data/framebuffer";
 import CubeTextureLoadManager from "../textureManager/CubeTextureLoadManager";
 
 class DynamicCubeMap0 extends ShaderModel {

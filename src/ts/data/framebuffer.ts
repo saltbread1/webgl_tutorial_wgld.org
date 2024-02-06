@@ -1,4 +1,4 @@
-import Texture2DBufferManager from "./textureManager/texture2DBufferManager";
+import Texture2DBufferManager from "../textureManager/texture2DBufferManager";
 
 class Framebuffer {
     private readonly _gl: WebGLRenderingContext;

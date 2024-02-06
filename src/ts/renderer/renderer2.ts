@@ -1,15 +1,15 @@
 import Renderer from "./renderer";
 import {mat4} from "gl-matrix";
 import Program from "../data/program";
-import {blend, loadFile, square} from "../util";
-import {Vertices} from "../type";
+import {blend, loadFile, square} from "../util/util";
+import {Vertices} from "../util/type";
 import AttributeManager from "../data/attributeManager";
 import UniformManager from "../data/uniformManager";
 import VBOManager from "../data/vboManager";
 import IBOManager from "../data/iboManager";
 import ModelDataProcessor from "../data/modelDataProcessor";
-import Framebuffer from "../framebuffer";
-import {BlendType} from "../enum";
+import Framebuffer from "../data/framebuffer";
+import {BlendType} from "../util/enum";
 import Model2 from "../model/model2";
 
 class Renderer2 extends Renderer {

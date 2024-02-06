@@ -1,5 +1,5 @@
-import Framebuffer from "./framebuffer";
-import Renderer from "./renderer/renderer";
+import Framebuffer from "../data/framebuffer";
+import Renderer from "../renderer/renderer";
 
 export type AttrInfo = {
     attLocation: number;

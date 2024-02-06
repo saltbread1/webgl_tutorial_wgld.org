@@ -1,4 +1,4 @@
-import RenderPath from "../renderPath";
+import RenderPath from "../renderer/renderPath";
 
 abstract class Canvas {
     protected readonly _canvas: HTMLCanvasElement;

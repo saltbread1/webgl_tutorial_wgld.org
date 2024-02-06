@@ -1,5 +1,5 @@
 import Canvas from "./canvas";
-import Framebuffer from "../framebuffer";
+import Framebuffer from "../data/framebuffer";
 import Texture2DBufferManager from "../textureManager/texture2DBufferManager";
 import Renderer0 from "../renderer/renderer0";
 import Renderer1 from "../renderer/renderer1";
