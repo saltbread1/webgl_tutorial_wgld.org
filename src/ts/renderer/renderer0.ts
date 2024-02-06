@@ -72,7 +72,7 @@ class Renderer0 extends Renderer {
     public override async preProcess(): Promise<void> {
         super.preProcess();
 
-        await this._textureManager.loadImage('img/texture0.png');
+        await this._textureManager.loadImageById('img_texture0');
         this._textureManager.createTexture();
 
         mat4.lookAt(this._vMatrix, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);

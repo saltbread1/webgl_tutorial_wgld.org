@@ -16,6 +16,11 @@ class Texture2DLoadManager extends Texture2DManager {
         });
     }
 
+    public async loadImageById(id: string): Promise<void> {
+        const img: HTMLImageElement = document.getElementById(id) as HTMLImageElement;
+        await this.loadImage(img.src);
+    }
+
     public createTexture(): void {
         if (!this._image) {
             throw new Error('Must load a image before create a texture.');

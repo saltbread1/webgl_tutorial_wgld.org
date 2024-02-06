@@ -14,7 +14,7 @@ const initCanvas = async (): Promise<void> => {
     await canvas.initShader();
 
     const fps: number = 30;
-    const elmSuspension: HTMLInputElement = document.getElementById('suspension') as HTMLInputElement;
+    const elmSuspension: HTMLInputElement = document.getElementById('pause') as HTMLInputElement;
     canvas.play(fps, elmSuspension);
 };
 
