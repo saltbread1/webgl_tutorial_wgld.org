@@ -1,7 +1,11 @@
 import Canvas from "./canvas/canvas";
+// @ts-ignore
 import Canvas0 from "./canvas/canvas0";
+// @ts-ignore
 import Canvas1 from "./canvas/canvas1";
+// @ts-ignore
 import Canvas2 from "./canvas/canvas2";
+// @ts-ignore
 import Canvas3 from "./canvas/canvas3";
 
 const initCanvas = async (): Promise<void> => {

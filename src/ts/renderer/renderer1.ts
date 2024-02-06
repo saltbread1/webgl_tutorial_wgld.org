@@ -1,8 +1,7 @@
 import Renderer from "./renderer";
 import {mat4} from "gl-matrix";
 import Program from "../data/program";
-import {readFileSync} from "fs";
-import {square} from "../util";
+import {loadFile, square} from "../util";
 import {Vertices} from "../type";
 import AttributeManager from "../data/attributeManager";
 import UniformManager from "../data/uniformManager";
@@ -26,10 +25,10 @@ class Renderer1 extends Renderer {
         this._elmBlur = elmBlur;
     }
 
-    public override createModels(): void {
+    public override async createModels(): Promise<void> {
         const program: Program = new Program(this._gl);
-        program.create(readFileSync('src/shader/2d_model.vert', {encoding: 'utf-8'}),
-            readFileSync('src/shader/quad_blur.frag', {encoding: 'utf-8'}));
+        program.create(await loadFile('./shader/2d_model.vert'),
+            await loadFile('./shader/quad_blur.frag'));
 
         const v: Vertices = square(2);
 

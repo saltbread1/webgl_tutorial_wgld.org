@@ -15,7 +15,7 @@ abstract class Renderer {
         this._models = new Map<string, Model>;
     }
 
-    public abstract createModels(): void;
+    public abstract createModels(): void | Promise<void>;
 
     public preProcess(): void | Promise<void> {
         // none

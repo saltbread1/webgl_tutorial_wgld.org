@@ -27,13 +27,13 @@ class Canvas0 extends Canvas {
         const renderer1: Renderer1 = new Renderer1(this._gl, fWidth, fHeight, elmBlur);
         const renderer2: Renderer2 = new Renderer2(this._gl, this._canvas.width, this._canvas.height, elmTransparency, elmAdd, elmAlphaValue);
 
-        renderer0.createModels();
+        await renderer0.createModels();
         await renderer0.preProcess();
 
-        renderer1.createModels();
+        await renderer1.createModels();
         renderer1.preProcess();
 
-        renderer2.createModels();
+        await renderer2.createModels();
         renderer2.preProcess();
 
         this._canvas.addEventListener('mousemove',

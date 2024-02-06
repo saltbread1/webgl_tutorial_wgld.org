@@ -2,9 +2,8 @@ import Renderer from "./renderer";
 import {mat4, quat, vec3} from "gl-matrix";
 import ModelDataProcessor from "../data/modelDataProcessor";
 import Program from "../data/program";
-import {readFileSync} from "fs";
 import {Vertices} from "../type";
-import {sphere, torus} from "../util";
+import {loadFile, sphere, torus} from "../util";
 import Model0 from "../model/model0";
 import Texture2DLoadManager from "../textureManager/texture2DLoadManager";
 import VBOManager from "../data/vboManager";
@@ -29,10 +28,10 @@ class Renderer0 extends Renderer {
         this._textureManager = new Texture2DLoadManager(gl);
     }
 
-    public override createModels(): void {
+    public override async createModels(): Promise<void> {
         const program: Program = new Program(this._gl);
-        program.create(readFileSync('src/shader/3d_model.vert', {encoding: 'utf-8'}),
-            readFileSync('src/shader/3d_model.frag', {encoding: 'utf-8'}));
+        program.create(await loadFile('./shader/3d_model.vert'),
+            await loadFile('./shader/3d_model.frag'));
 
         const v0: Vertices = torus(128, 128, 0.2, 1.5, true);
         const v1: Vertices = sphere(128, 128, 2.25, true);
@@ -72,7 +71,7 @@ class Renderer0 extends Renderer {
     public override async preProcess(): Promise<void> {
         super.preProcess();
 
-        await this._textureManager.loadImageById('img_texture0');
+        await this._textureManager.loadImage('img/texture0.png');
         this._textureManager.createTexture();
 
         mat4.lookAt(this._vMatrix, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);

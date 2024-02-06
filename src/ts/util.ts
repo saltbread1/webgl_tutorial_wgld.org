@@ -167,3 +167,25 @@ export const blend = (gl: WebGLRenderingContext, type: BlendType): void => {
         throw new Error('This blend type is illegal.');
     }
 };
+
+export const loadFile = async (src: string): Promise<string> => {
+    return new Promise<string>((resolve: (value: string) => void, reject: (value: Error) => void): void => {
+        const xhr: XMLHttpRequest = new XMLHttpRequest();
+        xhr.onreadystatechange = (): void => {
+            if (xhr.readyState == 4) {
+                if (xhr.status != 200) {
+                    reject(new Error('Bad status.'));
+                    return;
+                }
+                const data: string = xhr.responseText;
+                resolve(data);
+            }
+        }
+        // xhr.addEventListener('load', (): void => {
+        //     const data: string = xhr.responseText;
+        //     resolve(data);
+        // });
+        xhr.open('GET', src);
+        xhr.send();
+    });
+}
