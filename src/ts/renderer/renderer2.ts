@@ -68,13 +68,7 @@ class Renderer2 extends Renderer {
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
     }
 
-    public override render(fps: number, framebuffer?: Framebuffer): void {
-        this._currSec += 1 / fps;
-
-        this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        this._gl.clearDepth(1.0);
-        this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
-
+    protected override mainRender(framebuffer?: Framebuffer): void {
         this._gl.disable(this._gl.DEPTH_TEST);
         this._gl.enable(this._gl.BLEND);
 
@@ -91,12 +85,12 @@ class Renderer2 extends Renderer {
 
         framebuffer?.useTexture((): void => {
             mat4.fromTranslation(this._mMatrix, [0.5, 0.0, 0.0]);
-            mat4.rotateY(this._mMatrix, this._mMatrix, -this._currSec * Math.PI * 0.25);
+            mat4.rotateY(this._mMatrix, this._mMatrix, -this.currSec * Math.PI * 0.25);
             mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
             this._models.get('square')?.render({mvpMatrix: this._mvpMatrix, vertexAlpha: vertexAlpha});
 
             mat4.fromTranslation(this._mMatrix, [-0.5, 0.0, -0.2]);
-            mat4.rotateZ(this._mMatrix, this._mMatrix, this._currSec * Math.PI * 0.1);
+            mat4.rotateZ(this._mMatrix, this._mMatrix, this.currSec * Math.PI * 0.1);
             mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
             this._models.get('square')?.render({mvpMatrix: this._mvpMatrix, vertexAlpha: vertexAlpha});
         });

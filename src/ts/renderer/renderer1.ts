@@ -62,13 +62,7 @@ class Renderer1 extends Renderer {
         mat4.multiply(this._mvpMatrix, this._pMatrix, this._mvpMatrix);
     }
 
-    public override render(fps: number, framebuffer?: Framebuffer): void {
-        this._currSec += 1 / fps;
-
-        this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        this._gl.clearDepth(1.0);
-        this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
-
+    protected override mainRender(framebuffer?: Framebuffer): void {
         const isBlur: number = this._elmBlur.checked ? 1 : 0;
 
         framebuffer?.useTexture((): void => {

@@ -31,8 +31,7 @@ abstract class Canvas {
 
     public play(fps: number, elmPause: HTMLInputElement): void {
         window.setInterval((): void => {
-            if (elmPause.checked) { return; }
-            this._path.render(fps);
+            this._path.render(elmPause.checked, 1.0 / fps);
         }, 1000 / fps);
     }
 }

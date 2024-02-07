@@ -80,17 +80,11 @@ class Renderer0 extends Renderer {
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
     }
 
-    public override render(fps: number): void {
-        this._currSec += 1 / fps;
-
-        this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        this._gl.clearDepth(1.0);
-        this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
-
+    protected override mainRender(): void {
         mat4.fromTranslation(this._mMatrix, [0.0, 0.0, 0.0]);
         mat4.fromQuat(this._qMatrix, this._mouseQuat);
         mat4.multiply(this._mMatrix, this._mMatrix, this._qMatrix);
-        mat4.rotateZ(this._mMatrix, this._mMatrix, this._currSec * Math.PI / 4);
+        mat4.rotateZ(this._mMatrix, this._mMatrix, this.currSec * Math.PI / 4);
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
         mat4.invert(this._invMatrix, this._mMatrix);
 

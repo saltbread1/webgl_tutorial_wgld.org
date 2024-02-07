@@ -14,15 +14,15 @@ class RenderPath {
         paths.forEach((p: Path): number => this._paths.push(p));
     }
 
-    public render(fps: number): void {
+    public render(isPause :boolean, dSec: number): void {
         let preBuff: Framebuffer | undefined;
         this._paths.forEach((path: Path): void => {
             if (path.framebuffer) {
                 path.framebuffer.useFramebuffer((): void => {
-                    path.renderer.render(fps, preBuff);
+                    path.renderer.render(isPause, dSec, preBuff);
                 });
             } else {
-                path.renderer.render(fps, preBuff);
+                path.renderer.render(isPause, dSec, preBuff);
                 this._gl.flush();
             }
             preBuff = path.framebuffer;
