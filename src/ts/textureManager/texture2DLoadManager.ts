@@ -16,7 +16,7 @@ class Texture2DLoadManager extends Texture2DManager {
         });
     }
 
-    public createTexture(): void {
+    public createTexture(option?: {minFilter?: number, maxFilter?: number, warpS?: number, warpT?: number}): void {
         if (!this._image) {
             throw new Error('Must load a image before create a texture.');
         }
@@ -24,7 +24,7 @@ class Texture2DLoadManager extends Texture2DManager {
         this.useTexture((): void => {
             this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._image!);
             this._gl.generateMipmap(this._gl.TEXTURE_2D);
-            this.setTexParams();
+            this.setTexParams(option);
         });
     }
 }

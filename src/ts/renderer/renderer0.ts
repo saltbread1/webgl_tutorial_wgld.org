@@ -21,11 +21,11 @@ class Renderer0 extends Renderer {
     private readonly _qMatrix: mat4 = mat4.create();
     private readonly _mouseQuat: quat = quat.create();
 
-    private readonly _textureManager: Texture2DLoadManager;
+    private readonly _texMan: Texture2DLoadManager;
 
     public constructor(gl: WebGLRenderingContext, width: number, height: number) {
         super(gl, width, height);
-        this._textureManager = new Texture2DLoadManager(gl);
+        this._texMan = new Texture2DLoadManager(gl);
     }
 
     public override async createModels(): Promise<void> {
@@ -71,8 +71,8 @@ class Renderer0 extends Renderer {
     public override async preProcess(): Promise<void> {
         super.preProcess();
 
-        await this._textureManager.loadImage('img/texture0.png');
-        this._textureManager.createTexture();
+        await this._texMan.loadImage('img/texture0.png');
+        this._texMan.createTexture();
 
         mat4.lookAt(this._vMatrix, [0.0, 0.0, 2.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
         mat4.perspective(this._pMatrix, 90, this._width / this._height, 0.1, 100);
@@ -94,7 +94,7 @@ class Renderer0 extends Renderer {
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
         mat4.invert(this._invMatrix, this._mMatrix);
 
-        this._textureManager.useTexture((): void => {
+        this._texMan.useTexture((): void => {
             this._models.get('torus')?.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 1, isTexture: 0});
             this._models.get('sphere')?.render({mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix, isLight: 0, isTexture: 1});
         }, this._gl.TEXTURE0);
