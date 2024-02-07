@@ -13,7 +13,7 @@ const initCanvas = async (): Promise<void> => {
     c.width = 960;
     c.height = 540;
 
-    const canvas: Canvas = new Canvas0(c);
+    const canvas: Canvas = new Canvas1(c);
     canvas.initCanvas();
     await canvas.initShader();
 
