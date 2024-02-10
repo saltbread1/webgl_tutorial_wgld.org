@@ -13,7 +13,7 @@ class Texture2DBufferManager extends Texture2DManager {
         });
     }
 
-    public attachFramebuffer() : void{
+    public attachFramebuffer() : void {
         this._gl.framebufferTexture2D(this._gl.FRAMEBUFFER, this._gl.COLOR_ATTACHMENT0, this._gl.TEXTURE_2D, this._texture, 0);
     }
 }

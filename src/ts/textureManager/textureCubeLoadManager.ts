@@ -1,14 +1,11 @@
-import CubeTextureManager from "./CubeTextureManager";
+import TextureCubeManager from "./textureCubeManager";
 
-class CubeTextureLoadManager extends CubeTextureManager {
+class TextureCubeLoadManager extends TextureCubeManager {
     private readonly _images: {img: HTMLImageElement, t: number | undefined}[];
-    private readonly _targets: number[];
 
     public constructor(gl: WebGLRenderingContext) {
         super(gl);
         this._images = [];
-        this._targets = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
-                         gl.TEXTURE_CUBE_MAP_NEGATIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z];
     }
 
     public async loadImage(source: string, target?: number): Promise<void> {
@@ -25,7 +22,7 @@ class CubeTextureLoadManager extends CubeTextureManager {
         });
     }
 
-    public createTexture(): void {
+    public createTexture(option?: {minFilter?: number, maxFilter?: number, warpS?: number, warpT?: number}): void {
         this._texture = this._gl.createTexture();
 
         this.useTexture((): void => {
@@ -34,9 +31,9 @@ class CubeTextureLoadManager extends CubeTextureManager {
                 this._gl.texImage2D(target, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._images[i].img);
             }
             this._gl.generateMipmap(this._gl.TEXTURE_CUBE_MAP);
-            this.setTexParams();
+            this.setTexParams(option);
         });
     }
 }
 
-export default CubeTextureLoadManager;
+export default TextureCubeLoadManager;

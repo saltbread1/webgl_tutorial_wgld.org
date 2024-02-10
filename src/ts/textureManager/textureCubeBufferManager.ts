@@ -1,11 +1,8 @@
-import CubeTextureManager from "./CubeTextureManager";
+import TextureCubeManager from "./textureCubeManager";
 
-class CubeTextureBufferManager extends CubeTextureManager {
-    private readonly _targets: number[];
+class TextureCubeBufferManager extends TextureCubeManager {
     public constructor(gl: WebGLRenderingContext) {
         super(gl);
-        this._targets = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
-            gl.TEXTURE_CUBE_MAP_NEGATIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z];
     }
 
     public createTexture(width: number, height: number, targets?: number[]): void {
@@ -26,4 +23,4 @@ class CubeTextureBufferManager extends CubeTextureManager {
     }
 }
 
-export default CubeTextureBufferManager;
+export default TextureCubeBufferManager;
