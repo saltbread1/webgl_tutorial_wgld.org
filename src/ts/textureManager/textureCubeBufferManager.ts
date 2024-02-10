@@ -1,6 +1,7 @@
 import TextureCubeManager from "./textureCubeManager";
+import TextureBufferManager from "./textureBufferManager";
 
-class TextureCubeBufferManager extends TextureCubeManager {
+class TextureCubeBufferManager extends TextureCubeManager implements TextureBufferManager {
     public constructor(gl: WebGLRenderingContext) {
         super(gl);
     }

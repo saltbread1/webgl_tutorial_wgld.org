@@ -1,4 +1,4 @@
-import FramebufferTexture2D from "../data/framebufferTexture2D";
+import Framebuffer from "../data/framebuffer";
 import {Path} from "../util/type";
 
 class RenderPath {
@@ -15,9 +15,10 @@ class RenderPath {
     }
 
     public render(isPause :boolean, dSec: number): void {
-        let preBuff: FramebufferTexture2D | undefined;
+        let preBuff: Framebuffer | undefined;
         this._paths.forEach((path: Path): void => {
             if (path.framebuffer) {
+                path.framebuffer.attachFramebuffer(path.target ? path.target : this._gl.TEXTURE_2D);
                 path.framebuffer.useFramebuffer((): void => {
                     path.renderer.render(isPause, dSec, preBuff);
                 });

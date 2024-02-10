@@ -39,8 +39,8 @@ class Renderer7 extends Renderer {
         program.create(await loadFile('./shader/cube_map.vert'),
             await loadFile('./shader/cube_map.frag'));
 
-        const v0: Vertices = cube(32);
-        const v1: Vertices = sphere(128, 64, 1);
+        const v0: Vertices = cube(128);
+        const v1: Vertices = sphere(128, 64, 1.5);
 
         const attMan: AttributeManager = new AttributeManager(this._gl);
         attMan.addAttributeInfos(program.get,
@@ -84,14 +84,14 @@ class Renderer7 extends Renderer {
     }
 
     protected override mainRender(framebuffer?: FramebufferCubeTexture): void {
-        vec3.set(this._eyePosition, 0.0, 0.0, 6.0);
+        vec3.set(this._eyePosition, 0.0, 0.0, 8.0);
         vec3.set(this._camUp, 0.0, 1.0, 0.0);
         vec3.transformQuat(this._eyePosition, this._eyePosition, this._mouseQuat);
         vec3.transformQuat(this._camUp, this._camUp, this._mouseQuat);
 
         mat4.identity(this._tmpMatrix);
         mat4.lookAt(this._vMatrix, this._eyePosition, [0.0, 0.0, 0.0], this._camUp);
-        mat4.perspective(this._pMatrix, 45, this._width / this._height, 0.1, 100);
+        mat4.perspective(this._pMatrix, 45, this._width / this._height, 0.1, 256);
         mat4.multiply(this._tmpMatrix, this._vMatrix, this._tmpMatrix);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
 
@@ -105,12 +105,8 @@ class Renderer7 extends Renderer {
         }, this._gl.TEXTURE0);
 
         mat4.identity(this._mMatrix);
-        mat4.rotateZ(this._mMatrix, this._mMatrix, this.currSec * Math.PI * 0.15);
-        mat4.translate(this._mMatrix, this._mMatrix, [2.0, 0.0, 0.0]);
-        //mat4.rotateZ(this._mMatrix, this._mMatrix, -this.currSec * Math.PI * 0.15);
-        mat4.rotateX(this._mMatrix, this._mMatrix, this.currSec * Math.PI * 0.3);
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
-        mat4.invert(this._invMatrix, this._mMatrix);
+        mat4.copy(this._invMatrix, this._mMatrix);
 
         framebuffer!.useTexture((): void => {
             this._models.get('sphere')?.render({mMatrix: this._mMatrix, mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix,

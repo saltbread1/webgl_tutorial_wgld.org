@@ -38,7 +38,7 @@ class Renderer5 extends Renderer {
         program.create(await loadFile('./shader/cube_map.vert'),
             await loadFile('./shader/cube_map.frag'));
 
-        const v0: Vertices = cube(32);
+        const v0: Vertices = cube(128);
         const v1: Vertices = torus(128, 64, 0.25, 1);
 
         const attMan: AttributeManager = new AttributeManager(this._gl);
@@ -90,7 +90,7 @@ class Renderer5 extends Renderer {
 
         mat4.identity(this._tmpMatrix);
         mat4.lookAt(this._vMatrix, this._eyePosition, [0.0, 0.0, 0.0], this._camUp);
-        mat4.perspective(this._pMatrix, 45, this._width / this._height, 0.1, 100);
+        mat4.perspective(this._pMatrix, 45, this._width / this._height, 0.1, 256);
         mat4.multiply(this._tmpMatrix, this._vMatrix, this._tmpMatrix);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
 

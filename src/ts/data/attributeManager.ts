@@ -12,7 +12,7 @@ class AttributeManager {
     public addAttributeInfos(program: WebGLProgram, ...data: {name: string, stride: number}[]): void {
         data.forEach((d: {name: string, stride: number}): void => {
             this.addAttributeInfo(program, d.name, d.stride);
-        })
+        });
     }
 
     public addAttributeInfo(program: WebGLProgram, name: string, stride: number): void {

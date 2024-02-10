@@ -7,13 +7,15 @@ import Canvas1 from "./canvas/canvas1";
 import Canvas2 from "./canvas/canvas2";
 // @ts-ignore
 import Canvas3 from "./canvas/canvas3";
+// @ts-ignore
+import Canvas4 from "./canvas/canvas4";
 
 const initCanvas = async (): Promise<void> => {
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     c.width = 960;
     c.height = 540;
 
-    const canvas: Canvas = new Canvas3(c);
+    const canvas: Canvas = new Canvas4(c);
     canvas.initCanvas();
     await canvas.initShader();
 

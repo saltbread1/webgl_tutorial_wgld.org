@@ -1,9 +1,9 @@
 import Renderer from "./renderer";
-import {mat4, quat, vec3} from "gl-matrix";
+import {mat4, quat, vec3, vec4} from "gl-matrix";
 import ModelDataProcessor from "../data/modelDataProcessor";
 import Program from "../data/program";
 import {Vertices} from "../util/type";
-import {cube, loadFile, torus} from "../util/util";
+import {cube, hsv2rgb, loadFile, torus} from "../util/util";
 import VBOManager from "../data/vboManager";
 import AttributeManager from "../data/attributeManager";
 import IBOManager from "../data/iboManager";
@@ -26,12 +26,13 @@ class Renderer6 extends Renderer {
     private readonly _lightPosition: vec3 = vec3.create();
     private readonly _eyePosition: vec3 = vec3.create();
     private readonly _camUp: vec3 = vec3.create();
+    private readonly _ambientColor: vec4 = vec4.create();
 
     private readonly _texMan: TextureCubeLoadManager;
     private readonly _cubeTarget: number;
     private readonly _mouseMove: (e: MouseEvent, c: HTMLCanvasElement) => void;
 
-    protected constructor(gl: WebGLRenderingContext, width: number, height: number, cubeTarget: number) {
+    public constructor(gl: WebGLRenderingContext, width: number, height: number, cubeTarget: number) {
         super(gl, width, height);
         this._texMan = new TextureCubeLoadManager(gl);
         this._cubeTarget = cubeTarget;
@@ -46,8 +47,8 @@ class Renderer6 extends Renderer {
         program1.create(await loadFile('./shader/3d_model2.vert'),
             await loadFile('./shader/3d_model2.frag'));
 
-        const v0: Vertices = cube(32);
-        const v1: Vertices = torus(128, 64, 0.25, 1, true);
+        const v0: Vertices = cube(128);
+        const v1: Vertices = torus(128, 64, 0.25, 1);
 
         const attMan0: AttributeManager = new AttributeManager(this._gl);
         attMan0.addAttributeInfos(program0.get,
@@ -55,7 +56,7 @@ class Renderer6 extends Renderer {
             {name: 'normal', stride: 3},
             {name: 'color', stride: 4});
         const attMan1: AttributeManager = new AttributeManager(this._gl);
-        attMan1.addAttributeInfos(program0.get,
+        attMan1.addAttributeInfos(program1.get,
             {name: 'position', stride: 3},
             {name: 'normal', stride: 3},
             {name: 'color', stride: 4},
@@ -83,7 +84,7 @@ class Renderer6 extends Renderer {
         iboMan1.setIBOInfo(v1.idx!);
 
         this._models.set('cube', new Model5(this._gl, new ModelDataProcessor(this._gl, program0, attMan0, uniMan0, vboMan0, iboMan0)));
-        this._models.set('torus', new Model6(this._gl, new ModelDataProcessor(this._gl, program0, attMan1, uniMan1, vboMan1, iboMan1)));
+        this._models.set('torus', new Model6(this._gl, new ModelDataProcessor(this._gl, program1, attMan1, uniMan1, vboMan1, iboMan1)));
     }
 
     public override async preProcess(): Promise<void> {
@@ -100,38 +101,44 @@ class Renderer6 extends Renderer {
         this.setParams();
 
         mat4.lookAt(this._vMatrix, this._eyePosition, this._torusPosition, this._camUp);
-        mat4.perspective(this._pMatrix, 90, this._width / this._height, 0.1, 100);
+        mat4.perspective(this._pMatrix, 90, this._width / this._height, 0.1, 256);
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._vMatrix);
     }
 
     private setParams(): void {
         switch (this._cubeTarget) {
             case this._gl.TEXTURE_CUBE_MAP_POSITIVE_X:
-                vec3.set(this._torusPosition, 2, 0, 0);
+                vec3.set(this._torusPosition, 4, 0, 0);
                 vec3.set(this._camUp, 0, -1, 0);
+                vec4.copy(this._ambientColor, hsv2rgb(0, 0.3, 0.3, 0.3) as vec4);
                 break;
             case this._gl.TEXTURE_CUBE_MAP_POSITIVE_Y:
                 vec3.set(this._torusPosition, 0, 2, 0);
                 vec3.set(this._camUp, 0, 0, 1);
+                vec4.copy(this._ambientColor, hsv2rgb(1/6, 0.3, 0.3, 0.3) as vec4);
                 break;
             case this._gl.TEXTURE_CUBE_MAP_POSITIVE_Z:
-                vec3.set(this._torusPosition, 0, 0, 2);
+                vec3.set(this._torusPosition, 0, 0, 4);
                 vec3.set(this._camUp, 0, -1, 0);
+                vec4.copy(this._ambientColor, hsv2rgb(2/6, 0.3, 0.3, 0.3) as vec4);
                 break;
             case this._gl.TEXTURE_CUBE_MAP_NEGATIVE_X:
-                vec3.set(this._torusPosition, -2, 0, 0);
+                vec3.set(this._torusPosition, -4, 0, 0);
                 vec3.set(this._camUp, 0, -1, 0);
+                vec4.copy(this._ambientColor, hsv2rgb(3/6, 0.3, 0.3, 0.3) as vec4);
                 break;
             case this._gl.TEXTURE_CUBE_MAP_NEGATIVE_Y:
-                vec3.set(this._torusPosition, 0, -2, 0);
+                vec3.set(this._torusPosition, 0, -4, 0);
                 vec3.set(this._camUp, 0, 0, -1);
+                vec4.copy(this._ambientColor, hsv2rgb(4/6, 0.3, 0.3, 0.3) as vec4);
                 break;
             case this._gl.TEXTURE_CUBE_MAP_NEGATIVE_Z:
-                vec3.set(this._torusPosition, 0, 0, -2);
+                vec3.set(this._torusPosition, 0, 0, -4);
                 vec3.set(this._camUp, 0, -1, 0);
+                vec4.copy(this._ambientColor, hsv2rgb(5/6, 0.3, 0.3, 0.3) as vec4);
                 break;
             default:
-                throw new Error('Invalid cube target.')
+                throw new Error('Invalid cube target.');
         }
     }
 
@@ -151,11 +158,11 @@ class Renderer6 extends Renderer {
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
         mat4.invert(this._invMatrix, this._mMatrix);
 
-        vec3.set(this._lightPosition, 0.0, 0.0, 6.0);
+        vec3.set(this._lightPosition, 0.0, 0.0, 8.0);
         vec3.transformQuat(this._lightPosition, this._lightPosition, this._mouseQuat);
 
         this._models.get('torus')?.render({mMatrix: this._mMatrix, mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix,
-            eyePosition: this._eyePosition, isReflect: 1});
+            lightPosition: this._lightPosition, eyePosition: this._eyePosition, ambientColor: this._ambientColor});
     }
 
     public mouseMove(e: MouseEvent, c: HTMLCanvasElement): void {
