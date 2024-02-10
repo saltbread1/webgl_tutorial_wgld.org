@@ -1,18 +1,21 @@
 precision mediump float;
 
-uniform sampler2D texture0;
 uniform mat4 invMatrix;
-uniform vec3 lightDirection;
-uniform vec3 eyeDirection;
+uniform vec3 lightPosition;
+uniform vec3 eyePosition;
 uniform vec4 ambientColor;
+uniform sampler2D texture0;
 uniform bool isLight;
 uniform bool isTexture;
+varying vec3 vPositon;
 varying vec3 vNormal;
 varying vec4 vColor;
 varying vec2 vTextureCoord;
 
 void main()
 {
+    vec3 lightDirection = lightPosition - vPositon;
+    vec3 eyeDirection = eyePosition - vPositon;
     vec3 invLight = normalize(invMatrix * vec4(lightDirection, 0.0)).xyz;
     vec3 invEye = normalize(invMatrix * vec4(eyeDirection, 0.0)).xyz;
     float diffse = clamp(dot(vNormal, invLight), 0.0, 1.0);

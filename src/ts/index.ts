@@ -1,25 +1,27 @@
+import Canvas from "./canvas/canvas";
+// @ts-ignore
 import Canvas0 from "./canvas/canvas0";
+// @ts-ignore
 import Canvas1 from "./canvas/canvas1";
+// @ts-ignore
+import Canvas2 from "./canvas/canvas2";
+// @ts-ignore
+import Canvas3 from "./canvas/canvas3";
+// @ts-ignore
+import Canvas4 from "./canvas/canvas4";
 
 const initCanvas = async (): Promise<void> => {
     const c: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
-    c.width = 512;
-    c.height = 512;
+    c.width = 960;
+    c.height = 540;
 
-    const elmSuspension: HTMLInputElement = document.getElementById('suspension') as HTMLInputElement;
+    const canvas: Canvas = new Canvas4(c);
+    canvas.initCanvas();
+    await canvas.initShader();
 
-    const canvas0: Canvas0 = new Canvas0(c);
-    const canvas1: Canvas1 = new Canvas1(c);
-    canvas1.initCanvas();
-    await canvas1.initShader();
-    elmSuspension.addEventListener('mouseup', (e: MouseEvent): void => {
-        if (elmSuspension.checked) {
-            canvas1.startShader();
-        } else {
-            canvas1.suspendShader();
-        }
-    });
-    canvas1.startShader();
+    const fps: number = 30;
+    const elmSuspension: HTMLInputElement = document.getElementById('pause') as HTMLInputElement;
+    canvas.play(fps, elmSuspension);
 };
 
 window.addEventListener('DOMContentLoaded', initCanvas);

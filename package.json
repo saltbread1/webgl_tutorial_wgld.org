@@ -4,10 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "parcel ./src/index.html -p 8000"
+    "start": "mkdir -p ./dist; rm -rf ./dist/*; cp -r ./src/shader ./src/img ./dist; parcel ./src/index.html -p 8000"
   },
   "devDependencies": {
-    "@types/node": "^20.10.5",
     "typescript": "^5.3.3"
   },
   "dependencies": {

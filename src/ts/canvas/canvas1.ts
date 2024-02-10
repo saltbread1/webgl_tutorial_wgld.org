@@ -1,6 +1,5 @@
 import Canvas from "./canvas";
-import ShaderModel0 from "../shaderModels/shaderModel0";
-import ShaderModel2 from "../shaderModels/shaderModel2";
+import Renderer3 from "../renderer/renderer3";
 
 class Canvas1 extends Canvas {
     public constructor(c: HTMLCanvasElement) {
@@ -8,18 +7,18 @@ class Canvas1 extends Canvas {
     }
 
     public override async initShader(): Promise<void> {
-        const elmBlur: HTMLInputElement = document.getElementById("blur") as HTMLInputElement;
+        const elmPointSize: HTMLInputElement = document.getElementById('point_size') as HTMLInputElement;
 
-        const shaderModel0: ShaderModel0 = new ShaderModel0(this._gl, this._c);
-        const shaderModel2: ShaderModel2 = new ShaderModel2(this._gl, this._c, elmBlur);
+        const renderer3: Renderer3 = new Renderer3(this._gl, this._canvas.width, this._canvas.height, elmPointSize);
 
-        await shaderModel0.initialize();
-        shaderModel2.initialize();
+        await renderer3.createModels();
+        await renderer3.preProcess();
 
-        this._c.addEventListener('mousemove', (e: MouseEvent) => shaderModel0.mouseMove(e));
+        // this._canvas.addEventListener('mousemove',
+        //     (e: MouseEvent) => renderer3.mouseMove(e, this._canvas),
+        //     false);
 
-        this._path.addPath({model: shaderModel0, buffers: this.createFrameBuffer(this._c.width, this._c.height)},
-            {model: shaderModel2, buffers: {f: null, t: null, d: null}});
+        this._path.addPath({renderer: renderer3});
     };
 }
 

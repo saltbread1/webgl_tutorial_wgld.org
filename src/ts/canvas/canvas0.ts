@@ -1,6 +1,9 @@
 import Canvas from "./canvas";
-import ShaderModel0 from "../shaderModels/shaderModel0";
-import ShaderModel1 from "../shaderModels/shaderModel1";
+import Framebuffer from "../data/framebuffer";
+import Texture2DBufferManager from "../textureManager/texture2DBufferManager";
+import Renderer0 from "../renderer/renderer0";
+import Renderer1 from "../renderer/renderer1";
+import Renderer2 from "../renderer/renderer2";
 
 class Canvas0 extends Canvas {
     public constructor(c: HTMLCanvasElement) {
@@ -11,17 +14,35 @@ class Canvas0 extends Canvas {
         const elmTransparency: HTMLInputElement = document.getElementById('transparency') as HTMLInputElement;
         const elmAdd: HTMLInputElement = document.getElementById('add') as HTMLInputElement;
         const elmAlphaValue: HTMLInputElement = document.getElementById('alpha_value') as HTMLInputElement;
+        const elmBlur: HTMLInputElement = document.getElementById('blur') as HTMLInputElement;
 
-        const shaderModel0: ShaderModel0 = new ShaderModel0(this._gl, this._c);
-        const shaderModel1: ShaderModel1 = new ShaderModel1(this._gl, this._c, elmTransparency, elmAdd, elmAlphaValue);
+        const fWidth: number = 512;
+        const fHeight: number = 512;
+        const buff0: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
+        buff0.initialize();
+        const buff1: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
+        buff1.initialize();
 
-        await shaderModel0.initialize();
-        shaderModel1.initialize();
+        const renderer0: Renderer0 = new Renderer0(this._gl, fWidth, fHeight);
+        const renderer1: Renderer1 = new Renderer1(this._gl, fWidth, fHeight, elmBlur);
+        const renderer2: Renderer2 = new Renderer2(this._gl, this._canvas.width, this._canvas.height, elmTransparency, elmAdd, elmAlphaValue);
 
-        this._c.addEventListener('mousemove', (e: MouseEvent) => shaderModel0.mouseMove(e));
+        await renderer0.createModels();
+        await renderer0.preProcess();
 
-        this._path.addPath({model: shaderModel0, buffers: this.createFrameBuffer(this._c.width, this._c.height)},
-            {model: shaderModel1, buffers: {f: null, t: null, d: null}});
+        await renderer1.createModels();
+        renderer1.preProcess();
+
+        await renderer2.createModels();
+        renderer2.preProcess();
+
+        this._canvas.addEventListener('mousemove',
+            (e: MouseEvent) => renderer0.mouseMove(e, this._canvas),
+            false);
+
+        this._path.addPath({renderer: renderer0, framebuffer: {buff: buff0, target: this._gl.TEXTURE_2D}},
+            {renderer: renderer1, framebuffer: {buff: buff1, target: this._gl.TEXTURE_2D}},
+            {renderer: renderer2});
     };
 }
 
