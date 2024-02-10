@@ -1,7 +1,7 @@
 import Texture2DManager from "./texture2DManager";
 import TextureBufferManager from "./textureBufferManager";
 
-class Texture2DBufferManager extends Texture2DManager implements TextureBufferManager{
+class Texture2DBufferManager extends Texture2DManager implements TextureBufferManager {
     public constructor(gl: WebGLRenderingContext) {
         super(gl);
     }

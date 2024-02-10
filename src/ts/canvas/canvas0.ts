@@ -1,5 +1,5 @@
 import Canvas from "./canvas";
-import FramebufferTexture2D from "../data/framebufferTexture2D";
+import Framebuffer from "../data/framebuffer";
 import Texture2DBufferManager from "../textureManager/texture2DBufferManager";
 import Renderer0 from "../renderer/renderer0";
 import Renderer1 from "../renderer/renderer1";
@@ -18,9 +18,9 @@ class Canvas0 extends Canvas {
 
         const fWidth: number = 512;
         const fHeight: number = 512;
-        const buff0: FramebufferTexture2D = new FramebufferTexture2D(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
+        const buff0: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
         buff0.initialize();
-        const buff1: FramebufferTexture2D = new FramebufferTexture2D(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
+        const buff1: Framebuffer = new Framebuffer(this._gl, new Texture2DBufferManager(this._gl), fWidth, fHeight);
         buff1.initialize();
 
         const renderer0: Renderer0 = new Renderer0(this._gl, fWidth, fHeight);
@@ -40,7 +40,9 @@ class Canvas0 extends Canvas {
             (e: MouseEvent) => renderer0.mouseMove(e, this._canvas),
             false);
 
-        this._path.addPath({renderer: renderer0, framebuffer: buff0}, {renderer: renderer1, framebuffer: buff1}, {renderer: renderer2});
+        this._path.addPath({renderer: renderer0, framebuffer: {buff: buff0, target: this._gl.TEXTURE_2D}},
+            {renderer: renderer1, framebuffer: {buff: buff1, target: this._gl.TEXTURE_2D}},
+            {renderer: renderer2});
     };
 }
 

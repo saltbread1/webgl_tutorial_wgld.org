@@ -1,6 +1,6 @@
 import TextureBufferManager from "../textureManager/textureBufferManager";
 
-abstract class Framebuffer {
+class Framebuffer {
     protected readonly _gl: WebGLRenderingContext;
     protected readonly _texMan: TextureBufferManager;
     protected readonly _width: number;
@@ -8,7 +8,7 @@ abstract class Framebuffer {
     protected _framebuffer: WebGLFramebuffer | null;
     protected _depthRenderbuffer: WebGLRenderbuffer | null;
 
-    protected constructor(gl: WebGLRenderingContext, texMan: TextureBufferManager, width: number, height: number) {
+    public constructor(gl: WebGLRenderingContext, texMan: TextureBufferManager, width: number, height: number) {
         this._gl = gl;
         this._texMan = texMan;
         this._width = width;
@@ -43,7 +43,11 @@ abstract class Framebuffer {
         this._gl.viewport(0, 0, cacheWidth, cacheHeight);
     }
 
-    public abstract attachFramebuffer(target: number): void;
+    public attachFramebuffer(target: number): void {
+        this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, this._framebuffer);
+        this._texMan.attachFramebuffer(target);
+        this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
+    }
 
     public useTexture(func: () => void, unit: number = this._gl.TEXTURE0): void {
         this._texMan.useTexture(func, unit);

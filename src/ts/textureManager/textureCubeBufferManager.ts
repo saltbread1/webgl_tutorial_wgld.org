@@ -6,13 +6,10 @@ class TextureCubeBufferManager extends TextureCubeManager implements TextureBuff
         super(gl);
     }
 
-    public createTexture(width: number, height: number, targets?: number[]): void {
+    public createTexture(width: number, height: number): void {
         this._texture = this._gl.createTexture();
         this.useTexture((): void => {
-            if (!targets) {
-                targets = this._targets;
-            }
-            targets.forEach((t: number): void => {
+            this._targets.forEach((t: number): void => {
                 this._gl.texImage2D(t, 0, this._gl.RGBA, width, height, 0, this._gl.RGBA, this._gl.UNSIGNED_BYTE, null);
             });
             this.setTexParams();

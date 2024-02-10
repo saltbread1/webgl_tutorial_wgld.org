@@ -16,6 +16,5 @@ export type Vertices = {
 
 export type Path = {
     renderer: Renderer;
-    framebuffer?: Framebuffer;
-    target?: number;
+    framebuffer?: {buff: Framebuffer, target: number};
 };

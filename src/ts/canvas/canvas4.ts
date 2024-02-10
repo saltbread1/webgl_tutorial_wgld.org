@@ -1,7 +1,7 @@
 import Canvas from "./canvas";
 import Renderer6 from "../renderer/renderer6";
 import Renderer7 from "../renderer/renderer7";
-import FramebufferCubeTexture from "../data/framebufferCubeTexture";
+import Framebuffer from "../data/framebuffer";
 import TextureCubeBufferManager from "../textureManager/textureCubeBufferManager";
 
 class Canvas4 extends Canvas {
@@ -12,7 +12,7 @@ class Canvas4 extends Canvas {
     public override async initShader(): Promise<void> {
         const fWidth: number = 512;
         const fHeight: number = 512;
-        const buff: FramebufferCubeTexture = new FramebufferCubeTexture(this._gl, new TextureCubeBufferManager(this._gl), fWidth, fHeight);
+        const buff: Framebuffer = new Framebuffer(this._gl, new TextureCubeBufferManager(this._gl), fWidth, fHeight);
         buff.initialize();
 
         const targets: number[] = [this._gl.TEXTURE_CUBE_MAP_POSITIVE_X, this._gl.TEXTURE_CUBE_MAP_POSITIVE_Y, this._gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
@@ -39,7 +39,7 @@ class Canvas4 extends Canvas {
             false);
 
         renderer0.forEach((r: Renderer6, i: number): void => {
-            this._path.addPath({renderer: r, framebuffer: buff, target: targets[i]});
+            this._path.addPath({renderer: r, framebuffer: {buff: buff, target: targets[i]}});
         });
         this._path.addPath({renderer: renderer1});
     };

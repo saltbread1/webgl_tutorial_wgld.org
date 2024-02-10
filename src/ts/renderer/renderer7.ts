@@ -11,7 +11,7 @@ import UniformManager from "../data/uniformManager";
 import Model5 from "../model/model5";
 import TextureCubeLoadManager from "../textureManager/textureCubeLoadManager";
 import Renderer0 from "./renderer0";
-import FramebufferCubeTexture from "../data/framebufferCubeTexture";
+import Framebuffer from "../data/framebuffer";
 
 class Renderer7 extends Renderer {
     private readonly _mMatrix: mat4 = mat4.create();
@@ -40,7 +40,7 @@ class Renderer7 extends Renderer {
             await loadFile('./shader/cube_map.frag'));
 
         const v0: Vertices = cube(128);
-        const v1: Vertices = sphere(128, 64, 1.5);
+        const v1: Vertices = sphere(128, 64, 2);
 
         const attMan: AttributeManager = new AttributeManager(this._gl);
         attMan.addAttributeInfos(program.get,
@@ -83,7 +83,7 @@ class Renderer7 extends Renderer {
         this._texMan.createTexture();
     }
 
-    protected override mainRender(framebuffer?: FramebufferCubeTexture): void {
+    protected override mainRender(framebuffer?: Framebuffer): void {
         vec3.set(this._eyePosition, 0.0, 0.0, 8.0);
         vec3.set(this._camUp, 0.0, 1.0, 0.0);
         vec3.transformQuat(this._eyePosition, this._eyePosition, this._mouseQuat);

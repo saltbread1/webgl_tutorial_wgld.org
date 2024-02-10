@@ -18,15 +18,15 @@ class RenderPath {
         let preBuff: Framebuffer | undefined;
         this._paths.forEach((path: Path): void => {
             if (path.framebuffer) {
-                path.framebuffer.attachFramebuffer(path.target ? path.target : this._gl.TEXTURE_2D);
-                path.framebuffer.useFramebuffer((): void => {
+                path.framebuffer.buff.attachFramebuffer(path.framebuffer.target);
+                path.framebuffer.buff.useFramebuffer((): void => {
                     path.renderer.render(isPause, dSec, preBuff);
                 });
             } else {
                 path.renderer.render(isPause, dSec, preBuff);
                 this._gl.flush();
             }
-            preBuff = path.framebuffer;
+            preBuff = path.framebuffer?.buff;
         });
     }
 }
