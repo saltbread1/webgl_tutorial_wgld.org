@@ -1,6 +1,6 @@
 import Texture2DBufferManager from "../textureManager/texture2DBufferManager";
 
-class Framebuffer {
+class FramebufferTexture2D {
     private readonly _gl: WebGLRenderingContext;
     private readonly _texMan: Texture2DBufferManager;
     private readonly _width: number;
@@ -17,7 +17,7 @@ class Framebuffer {
         this._depthRenderbuffer = null;
     }
 
-    public initialize(isAttach: boolean = true): void {
+    public initialize(): void {
         this._framebuffer = this._gl.createFramebuffer();
         this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, this._framebuffer);
 
@@ -28,7 +28,7 @@ class Framebuffer {
         this._gl.bindRenderbuffer(this._gl.RENDERBUFFER, null);
 
         this._texMan.createTexture(this._width, this._height);
-        if (isAttach)  { this._texMan.attachFramebuffer(); }
+        this._texMan.attachFramebuffer();
 
         this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
     };
@@ -44,9 +44,13 @@ class Framebuffer {
         this._gl.viewport(0, 0, cacheWidth, cacheHeight);
     }
 
-    public useTexture(func: () => void): void {
-        this._texMan.useTexture(func);
+    public attachFramebuffer(): void {
+        this._texMan.attachFramebuffer();
+    }
+
+    public useTexture(func: () => void, unit: number = this._gl.TEXTURE0): void {
+        this._texMan.useTexture(func, unit);
     }
 }
 
-export default Framebuffer;
+export default FramebufferTexture2D;

@@ -9,7 +9,7 @@ import VBOManager from "../data/vboManager";
 import IBOManager from "../data/iboManager";
 import Model1 from "../model/model1";
 import ModelDataProcessor from "../data/modelDataProcessor";
-import Framebuffer from "../data/framebuffer";
+import FramebufferTexture2D from "../data/framebufferTexture2D";
 
 class Renderer1 extends Renderer {
     private readonly _elmBlur: HTMLInputElement;
@@ -62,7 +62,7 @@ class Renderer1 extends Renderer {
         mat4.multiply(this._mvpMatrix, this._pMatrix, this._mvpMatrix);
     }
 
-    protected override mainRender(framebuffer?: Framebuffer): void {
+    protected override mainRender(framebuffer?: FramebufferTexture2D): void {
         const isBlur: number = this._elmBlur.checked ? 1 : 0;
 
         framebuffer?.useTexture((): void => {

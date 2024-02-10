@@ -3,7 +3,7 @@ import {mat4, quat, vec3} from "gl-matrix";
 import ModelDataProcessor from "../data/modelDataProcessor";
 import Program from "../data/program";
 import {Vertices} from "../util/type";
-import {cube, loadFile, torus} from "../util/util";
+import {cube, loadFile, sphere} from "../util/util";
 import VBOManager from "../data/vboManager";
 import AttributeManager from "../data/attributeManager";
 import IBOManager from "../data/iboManager";
@@ -11,8 +11,9 @@ import UniformManager from "../data/uniformManager";
 import Model5 from "../model/model5";
 import TextureCubeLoadManager from "../textureManager/textureCubeLoadManager";
 import Renderer0 from "./renderer0";
+import FramebufferCubeTexture from "../data/framebufferCubeTexture";
 
-class Renderer5 extends Renderer {
+class Renderer7 extends Renderer {
     private readonly _mMatrix: mat4 = mat4.create();
     private readonly _vMatrix: mat4 = mat4.create();
     private readonly _pMatrix: mat4 = mat4.create();
@@ -39,7 +40,7 @@ class Renderer5 extends Renderer {
             await loadFile('./shader/cube_map.frag'));
 
         const v0: Vertices = cube(32);
-        const v1: Vertices = torus(128, 64, 0.25, 1);
+        const v1: Vertices = sphere(128, 64, 1);
 
         const attMan: AttributeManager = new AttributeManager(this._gl);
         attMan.addAttributeInfos(program.get,
@@ -67,7 +68,7 @@ class Renderer5 extends Renderer {
         iboMan1.setIBOInfo(v1.idx!);
 
         this._models.set('cube', new Model5(this._gl, new ModelDataProcessor(this._gl, program, attMan, uniMan, vboMan0, iboMan0)));
-        this._models.set('torus', new Model5(this._gl, new ModelDataProcessor(this._gl, program, attMan, uniMan, vboMan1, iboMan1)));
+        this._models.set('sphere', new Model5(this._gl, new ModelDataProcessor(this._gl, program, attMan, uniMan, vboMan1, iboMan1)));
     }
 
     public override async preProcess(): Promise<void> {
@@ -82,7 +83,7 @@ class Renderer5 extends Renderer {
         this._texMan.createTexture();
     }
 
-    protected override mainRender(): void {
+    protected override mainRender(framebuffer?: FramebufferCubeTexture): void {
         vec3.set(this._eyePosition, 0.0, 0.0, 6.0);
         vec3.set(this._camUp, 0.0, 1.0, 0.0);
         vec3.transformQuat(this._eyePosition, this._eyePosition, this._mouseQuat);
@@ -111,8 +112,8 @@ class Renderer5 extends Renderer {
         mat4.multiply(this._mvpMatrix, this._tmpMatrix, this._mMatrix);
         mat4.invert(this._invMatrix, this._mMatrix);
 
-        this._texMan.useTexture((): void => {
-            this._models.get('torus')?.render({mMatrix: this._mMatrix, mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix,
+        framebuffer!.useTexture((): void => {
+            this._models.get('sphere')?.render({mMatrix: this._mMatrix, mvpMatrix: this._mvpMatrix, invMatrix: this._invMatrix,
                 eyePosition: this._eyePosition, isReflect: 1});
         }, this._gl.TEXTURE0);
     }
@@ -122,4 +123,4 @@ class Renderer5 extends Renderer {
     };
 }
 
-export default Renderer5;
+export default Renderer7;

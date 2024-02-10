@@ -8,7 +8,7 @@ import UniformManager from "../data/uniformManager";
 import VBOManager from "../data/vboManager";
 import IBOManager from "../data/iboManager";
 import ModelDataProcessor from "../data/modelDataProcessor";
-import Framebuffer from "../data/framebuffer";
+import FramebufferTexture2D from "../data/framebufferTexture2D";
 import {BlendType} from "../util/enum";
 import Model2 from "../model/model2";
 
@@ -68,7 +68,7 @@ class Renderer2 extends Renderer {
         mat4.multiply(this._tmpMatrix, this._pMatrix, this._tmpMatrix);
     }
 
-    protected override mainRender(framebuffer?: Framebuffer): void {
+    protected override mainRender(framebuffer?: FramebufferTexture2D): void {
         this._gl.disable(this._gl.DEPTH_TEST);
         this._gl.enable(this._gl.BLEND);
 

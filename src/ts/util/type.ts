@@ -1,4 +1,4 @@
-import Framebuffer from "../data/framebuffer";
+import FramebufferTexture2D from "../data/framebufferTexture2D";
 import Renderer from "../renderer/renderer";
 
 export type AttrInfo = {
@@ -16,5 +16,5 @@ export type Vertices = {
 
 export type Path = {
     renderer: Renderer;
-    framebuffer?: Framebuffer;
+    framebuffer?: FramebufferTexture2D;
 };

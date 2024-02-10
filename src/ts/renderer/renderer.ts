@@ -1,5 +1,6 @@
 import Model from "../model/model";
-import Framebuffer from "../data/framebuffer";
+import FramebufferTexture2D from "../data/framebufferTexture2D";
+import FramebufferCubeTexture from "../data/framebufferCubeTexture";
 
 abstract class Renderer {
     protected readonly _gl: WebGLRenderingContext;
@@ -31,9 +32,9 @@ abstract class Renderer {
         this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
     }
 
-    protected abstract mainRender(framebuffer?: Framebuffer): void;
+    protected abstract mainRender(framebuffer?: FramebufferTexture2D | FramebufferCubeTexture): void;
 
-    public render(isPause: boolean, dSec: number, framebuffer?: Framebuffer): void {
+    public render(isPause: boolean, dSec: number, framebuffer?: FramebufferTexture2D | FramebufferCubeTexture): void {
         if (!isPause) { this._currSec += dSec; }
         this.clear();
         this.mainRender(framebuffer);
